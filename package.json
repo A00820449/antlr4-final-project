@@ -1,0 +1,15 @@
+{
+  "name": "antlr4-final-project",
+  "version": "1.0.0",
+  "description": "Final project for Compiler Design",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "A00820449",
+  "license": "MIT",
+  "dependencies": {
+    "antlr4": "^4.12.0"
+  },
+  "type": "module"
+}
