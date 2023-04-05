@@ -4,7 +4,8 @@
   "description": "Final project for Compiler Design",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "antlr4 -Dlanguage=JavaScript Grammar.g4 -o lib"
   },
   "author": "A00820449",
   "license": "MIT",

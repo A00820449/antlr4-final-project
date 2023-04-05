@@ -28,12 +28,37 @@ block: '{' statement* '}' ;
 
 statement: expression ';' ;
 
-expression: ;
+expression: conjunction expression_aux;
+expression_aux: (conjuction_op conjunction)*;
+conjuction_op: '&';
+
+conjunction: relation conjunction_aux;
+conjunction_aux: (relation_op relation)*;
+relation_op: '|';
+
+relation: addition relation_aux;
+relation_aux: (addition_op addition)*;
+addition_op: '==' | '!=' | '>' | '>=' | '<' | '<=' ;
+
+addition: term addition_aux;
+addition_aux: (term_op term)*;
+term_op: '+' | '-';
+
+term: factor factor_aux;
+factor_aux: (factor_op factor)*;
+factor_op: '*' | '/';
+
+factor: paren_exp | atom;
+
+paren_exp: '(' expression ')';
+atom: ID;
 
 main: 'main' block ;
 
 // TOKENS
 
-ID: [A-Za-z_][A-Za-z0-9_]+;
+ID: [A-Za-z_][A-Za-z0-9_]*;
 
 NUM_CTE: [0-9]+('.'[0-9]([eE][-+]?[0-9]+)?)?;
+
+WS: [ \t\r\n] -> skip;
