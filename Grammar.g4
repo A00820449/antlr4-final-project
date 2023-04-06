@@ -60,7 +60,7 @@ term_op: '+' | '-';
 
 term: factor factor_aux;
 factor_aux: (factor_op factor)*;
-factor_op: '*' | '/';
+factor_op: '*' | '/' | '%';
 
 factor: paren_exp | atom;
 
@@ -94,7 +94,7 @@ main: 'main' block ;
 
 ID: [A-Za-z_][A-Za-z0-9_]*;
 
-NUM_CTE: [0-9]+('.'[0-9]([eE][-+]?[0-9]+)?)?;
+NUM_CTE: [0-9]+('.'[0-9]+([eE][-+]?[0-9]+)?)?;
 
 STR_CTE: '"'(~["\\]|'\\'.)*?'"';
 
