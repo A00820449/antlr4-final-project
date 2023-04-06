@@ -1,3 +1,49 @@
-program a:
-var number a;
-main {}
+program square:
+var number h, w, m, i;
+var boolean b;
+function number min(number a, number b):
+var number output;
+{
+    if (a < b) {
+        output = a;
+    }
+    else {
+        output = b;
+    };
+    return output;
+}
+function boolean not(boolean b):
+{
+    if (b) {
+        return false;
+    };
+    return true;
+}
+main {
+    # this is a comment
+    print("loading image...\n");
+    load("input.png");
+    w = getWidth();
+    h = getHeight();
+
+    m = min(w, h);
+
+    if (w != h) {
+        print("cropping image...");
+        crop(0,0,min,min);
+    }
+    else {
+        print("image is already square");
+    };
+
+    # printing all even numbers from 1 to 100
+    i = 1;
+    b = false;
+    while (i <= 100) {
+        if (b) {
+            print("even: ", i);
+        };
+        b = not(b);
+        i = i + 1;
+    };
+}
