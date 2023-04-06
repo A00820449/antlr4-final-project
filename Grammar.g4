@@ -1,6 +1,9 @@
 grammar Grammar;
 
-start: 'program' ID ':' global_vars functions main;
+start: program end;
+end: EOF;
+
+program: 'program' ID ':' global_vars functions main;
 
 global_vars: var_decl* ;
 
@@ -10,11 +13,9 @@ type: basic_type type_dim_1? type_dim_2?;
 
 basic_type: 'number' | 'boolean';
 
-type_dim_1: dim_decl ;
+type_dim_1: '[' NUM_CTE ']';
 
-type_dim_2: dim_decl ;
-
-dim_decl: '[' NUM_CTE ']';
+type_dim_2: '[' NUM_CTE ']';
 
 functions: function_decls*;
 
