@@ -3,19 +3,24 @@ grammar Grammar;
 start: program end;
 end: EOF;
 
-program: 'program' ID ':' global_vars functions main;
+program: 'program' program_name ':' global_vars functions main;
+program_name: ID;
 
 global_vars: var_decl* ;
 
-var_decl: 'var' type ID (',' ID)* ';';
+var_decl: 'var' var_type var_id (',' var_id)* ';';
+var_id: ID;
 
-type: basic_type type_dim_1? type_dim_2?;
+var_type: var_basic_type var_type_dim_1? var_type_dim_2?;
+var_basic_type: basic_type;
 
 basic_type: 'number' | 'boolean';
 
-type_dim_1: '[' NUM_CTE ']';
+var_type_dim_1: '[' var_type_dim_1_num ']';
+var_type_dim_1_num: NUM_CTE;
 
-type_dim_2: '[' NUM_CTE ']';
+var_type_dim_2: '[' var_type_dim_2_num ']';
+var_type_dim_2_num: NUM_CTE;
 
 functions: function_decls*;
 

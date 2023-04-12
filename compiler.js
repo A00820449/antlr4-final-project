@@ -20,3 +20,5 @@ const listener = new Listener(quadruples)
 parser.addParseListener(listener)
 
 parser.start()
+
+console.log(listener.getQuadruples())

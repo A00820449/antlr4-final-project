@@ -1,0 +1,6 @@
+program test:
+var number a, b, c;
+var number[1][2] d, e, f;
+var number[3] h, i, j;
+var boolean k;
+main {}
