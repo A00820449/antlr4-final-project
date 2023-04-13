@@ -22,13 +22,17 @@ var_type_dim_1_num: NUM_CTE;
 var_type_dim_2: '[' var_type_dim_2_num ']';
 var_type_dim_2_num: NUM_CTE;
 
-functions: function_decls*;
+functions: function_decl*;
 
-function_decls: 'function' fun_type ID '(' param_list? ')' ':' local_vars block;
+function_decl: 'function' fun_type fun_id '(' param_list? ')' params_done local_vars block;
+fun_id: ID;
+params_done: ':';
 
 fun_type: basic_type | 'void';
 
-param_list: basic_type ID (',' basic_type ID)*;
+param_list: basic_type param_id (',' param_type param_id)*;
+param_id: ID;
+param_type: basic_type;
 
 local_vars: var_decl*;
 
