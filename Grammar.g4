@@ -30,7 +30,7 @@ params_done: ':';
 
 fun_type: basic_type | 'void';
 
-param_list: basic_type param_id (',' param_type param_id)*;
+param_list: param_type param_id (',' param_type param_id)*;
 param_id: ID;
 param_type: basic_type;
 
@@ -110,3 +110,5 @@ STR_CTE: '"'(~["\\]|'\\'.)*?'"';
 COMMENT: '#'~[\n]*'\n' -> skip;
 
 WS: [ \t\r\n]+ -> skip;
+
+UNKNOWN: .;
