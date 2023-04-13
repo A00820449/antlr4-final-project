@@ -29,6 +29,27 @@ import GrammarListener from "./lib/GrammarListener.js";
 * }} ParamsTable
 */
 
+const operatorDictionary = {
+    "+": "ADD",
+    "-": "SUB",
+    "*": "MUL",
+    "/": "DIV",
+    "%": "MOD",
+    "==": "EQ",
+    "!=": "NE",
+    ">": "GT",
+    ">=": "GE",
+    "<": "LT",
+    "<=": "LE",
+    "|": "OR",
+    "&": "AND"
+}
+
+const unaryDictionary = {
+    "-": "NEG",
+    "!": "NOT"
+}
+
 export default class Listener extends GrammarListener {
     /**
      * @type {Quadruple[]}

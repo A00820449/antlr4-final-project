@@ -1,1 +1,1 @@
-console.log("Hello world")
+console.error("USAGE: node compiler.js [file name]")

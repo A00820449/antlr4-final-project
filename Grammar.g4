@@ -71,7 +71,10 @@ term: factor factor_aux;
 factor_aux: (factor_op factor)*;
 factor_op: '*' | '/' | '%';
 
-factor: paren_exp | atom;
+factor: negation_op? negation;
+negation_op: '!' | '-';
+
+negation: paren_exp | atom;
 
 paren_exp: '(' expression ')';
 atom: var_access | fun_call | literal;
