@@ -126,22 +126,28 @@ export default class Listener extends GrammarListener {
 
     exitVar_type_dim_1_num(ctx) {
         const num = Math.trunc(parseFloat(ctx.getText()))
+        if (num <= 0) {
+            throw new SemanicError("vector dimension must be positive", ctx)
+        }
         this.currVarType.dim_1 = num
     }
 
     exitVar_type_dim_2_num(ctx) {
         const num = Math.trunc(parseFloat(ctx.getText()))
+        if (num <= 0) {
+            throw new SemanicError("vector dimension must be positive", ctx)
+        }
         this.currVarType.dim_2 = num
     }
 
     exitVar_id(ctx) {
         const id = ctx.getText()
         if (this.globalSymTable[id]) {
-            throw new SemanicError(`ID already used: ${id}`, ctx)
+            throw new SemanicError(`duplicate ID '${id}'`, ctx)
         }
         if (this.currScope !== "$global") {
             if (this.localVarTable[id]) {
-                throw new SemanicError(`ID already used: ${id}`, ctx)
+                throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
             this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2}
 
@@ -175,7 +181,7 @@ export default class Listener extends GrammarListener {
     exitFun_id(ctx) {
         const id = ctx.getText()
         if (this.globalSymTable[id]) {
-            throw new SemanicError(`ID already used: ${id}`, ctx)
+            throw new SemanicError(`Duplicate ID '${id}'`, ctx)
         }
         this.globalSymTable[id] = {kind: "function", type: this.currFunType, dim_1: null, dim_2: null, params: null}
         this.currScope = id
@@ -187,7 +193,7 @@ export default class Listener extends GrammarListener {
     exitParam_id(ctx) {
         const id = ctx.getText()
         if (this.localVarTable[id] || this.currParamsTable[id]) {
-            throw new SemanicError(`ID already used: ${id}`, ctx)
+            throw new SemanicError(`ID already used '${id}'`, ctx)
         }
 
         this.localVarTable[id] = {...(this.currVarType)}

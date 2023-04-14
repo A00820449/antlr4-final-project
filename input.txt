@@ -19,7 +19,7 @@ function boolean not(boolean b):
     };
     return true;
 }
-main {
+main: {
     # this is a comment
     print("loading image...\n");
     load("input.png");

@@ -16,6 +16,6 @@ var number ya;
 function boolean x(boolean xa):
 {}
 
-main {
+main: {
     print(a);
 }

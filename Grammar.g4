@@ -17,10 +17,12 @@ var_basic_type: basic_type;
 basic_type: 'number' | 'boolean';
 
 var_type_dim_1: '[' var_type_dim_1_num ']';
-var_type_dim_1_num: NUM_CTE;
+var_type_dim_1_num: const_num;
 
 var_type_dim_2: '[' var_type_dim_2_num ']';
-var_type_dim_2_num: NUM_CTE;
+var_type_dim_2_num: const_num;
+
+const_num: '-' NUM_CTE;
 
 functions: function_decl*;
 
@@ -44,7 +46,10 @@ assignment: var_access '=' expression ';';
 
 fun_call_stmt: fun_call ';';
 
-return_stmt: 'return' expression ';';
+return_stmt: return_void | return_exp;
+
+return_void: 'return' ';';
+return_exp: 'return' expression ';';
 
 while_stmt: 'while' '(' expression ')' block ';';
 
@@ -100,7 +105,7 @@ dim_access_1: '[' expression ']';
 
 dim_access_2: '[' expression ']';
 
-main: 'main' block ;
+main: 'main' ':' block ;
 
 // TOKENS
 
@@ -108,7 +113,7 @@ ID: [A-Za-z_][A-Za-z0-9_]*;
 
 NUM_CTE: [0-9]+('.'[0-9]+([eE][-+]?[0-9]+)?)?;
 
-STR_CTE: '"'(~["\\]|'\\'.)*?'"';
+STR_CTE: '"'(~["\n\\]|'\\'~[\n])*'"';
 
 COMMENT: '#'~[\n]*'\n' -> skip;
 
