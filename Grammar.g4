@@ -22,7 +22,7 @@ var_type_dim_1_num: const_num;
 var_type_dim_2: '[' var_type_dim_2_num ']';
 var_type_dim_2_num: const_num;
 
-const_num: '-' NUM_CTE;
+const_num: '-'? NUM_CTE;
 
 functions: function_decl*;
 

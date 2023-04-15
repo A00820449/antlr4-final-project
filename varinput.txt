@@ -10,10 +10,10 @@ var boolean[2] ze;
 {}
 
 function void y():
-var number ya;
+var number ya, a;
 {}
 
-function boolean x(boolean xa):
+function boolean x(boolean a):
 {}
 
 main: {

@@ -11,7 +11,7 @@ import GrammarListener from "./lib/GrammarListener.js";
  *      type: ("number" | "boolean" | "void" | null),
  *      dim_1: number | null,
  *      dim_2: number | null,
- *      params: (ParamsTable | null)
+ *      params: (ParamsList | null)
  * }} SymInfo
  */
 
@@ -24,9 +24,7 @@ import GrammarListener from "./lib/GrammarListener.js";
 */
 
 /**
- * @typedef {{
-*      [key: string]: ("boolean"|"number")
-* }} ParamsTable
+ * @typedef {("number" | "boolean")[]} ParamsList
 */
 
 const operatorDictionary = {
@@ -81,9 +79,9 @@ export default class Listener extends GrammarListener {
     currScope
     
     /**
-     * @type {ParamsTable|null}
+     * @type {ParamsList|null}
      */
-    currParamsTable
+    currParamsList
 
     /**
      * @type {{[key: string]: VarInfo}}
@@ -101,7 +99,7 @@ export default class Listener extends GrammarListener {
         this.currVarType = {type: null, dim_1: null, dim_2: null}
         this.currScope = "$global"
         this.localVarTable = {}
-        this.currParamsTable = {}
+        this.currParamsList = []
         this.currFunType = "void"
     }
 
@@ -142,18 +140,18 @@ export default class Listener extends GrammarListener {
 
     exitVar_id(ctx) {
         const id = ctx.getText()
-        if (this.globalSymTable[id]) {
-            throw new SemanicError(`duplicate ID '${id}'`, ctx)
+        if (this.currScope === "$global") {
+            if  (this.globalSymTable[id]) {
+                throw new SemanicError(`duplicate ID '${id}'`, ctx)
+            }
+            this.globalSymTable[id] = {kind: "var", type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, params: null}
         }
-        if (this.currScope !== "$global") {
+        else {
             if (this.localVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
             this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2}
 
-        }
-        else {
-            this.globalSymTable[id] = {kind: "var", type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, params: null}
         }
     }
 
@@ -166,7 +164,7 @@ export default class Listener extends GrammarListener {
     /** FUN STARTS */
 
     enterFunction_decl() {
-        this.currParamsTable = {}
+        this.currParamsList = []
         this.localVarTable = {}
         this.currFunType = "void"
     }
@@ -192,15 +190,15 @@ export default class Listener extends GrammarListener {
     }
     exitParam_id(ctx) {
         const id = ctx.getText()
-        if (this.localVarTable[id] || this.currParamsTable[id]) {
-            throw new SemanicError(`ID already used '${id}'`, ctx)
+        if (this.localVarTable[id]) {
+            throw new SemanicError(`Duplicate ID '${id}'`, ctx)
         }
 
         this.localVarTable[id] = {...(this.currVarType)}
-        this.currParamsTable[id] = this.currVarType.type || "number"
+        this.currParamsList?.push(this.currVarType.type || "number")
     }
     exitParams_done() {
-        this.globalSymTable[this.currScope].params = {...(this.currParamsTable)}
+        this.globalSymTable[this.currScope].params = this.currParamsList.slice()
     }
 
     /** FUN ENDS */
