@@ -7,10 +7,10 @@ Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](ht
 ```bash
 pip install antlr4-tools
 ```
-After cloning the repositry, install the NPM dependancies and build the grammar files using these commands:
+After cloning the repositry, install the NPM dependencies and build the grammar files using these commands:
 ```bash
-npm install
-npm run build
+npm install # installs NPM dependencies
+npm run build # builds grammar files using ANTLR
 ```
 ### Compiler
 To use the compiler, use Node to run the file `compiler.js` like so:
