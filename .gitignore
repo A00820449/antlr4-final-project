@@ -106,3 +106,6 @@ dist
 # antlr files
 lib
 .antlr
+
+# archive zip files
+*.zip
