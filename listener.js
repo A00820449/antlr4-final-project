@@ -7,12 +7,9 @@ import GrammarListener from "./lib/GrammarListener.js";
 
 /**
  * @typedef {{
- *      kind: ("program" | "var" | "function"),
  *      type: ("number" | "boolean" | "void" | null),
- *      dim_1: number | null,
- *      dim_2: number | null,
  *      params: (ParamsList | null)
- * }} SymInfo
+ * }} FunInfo
  */
 
 /**
@@ -55,9 +52,9 @@ export default class Listener extends GrammarListener {
     quadruples
 
     /**
-     * @type {{[key: string]: SymInfo}}
+     * @type {{[key: string]: FunInfo}}
      */
-    globalSymTable
+    funTable
 
     /**
      * @type {{
@@ -86,7 +83,17 @@ export default class Listener extends GrammarListener {
     /**
      * @type {{[key: string]: VarInfo}}
      */
+    globalVarTable
+
+    /**
+     * @type {{[key: string]: VarInfo}}
+     */
     localVarTable
+
+    /**
+     * @type {string | null}
+     */
+    progName
 
     /**
      * 
@@ -95,12 +102,14 @@ export default class Listener extends GrammarListener {
     constructor(q) {
         super()
         this.quadruples = q || []
-        this.globalSymTable = {}
+        this.funTable = {}
         this.currVarType = {type: null, dim_1: null, dim_2: null}
         this.currScope = "$global"
+        this.globalVarTable = {}
         this.localVarTable = {}
         this.currParamsList = []
         this.currFunType = "void"
+        this.progName = null
     }
 
     getQuadruples() {
@@ -108,7 +117,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitProgram_name(ctx) {
-        this.globalSymTable[ctx.getText()] = {kind: "program", type: null, dim_1: null, dim_2: null, params: null}
+        this.progName = ctx.getText()
     }
 
     /**VARS START */
@@ -141,10 +150,10 @@ export default class Listener extends GrammarListener {
     exitVar_id(ctx) {
         const id = ctx.getText()
         if (this.currScope === "$global") {
-            if  (this.globalSymTable[id]) {
+            if  (this.globalVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalSymTable[id] = {kind: "var", type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, params: null}
+            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2}
         }
         else {
             if (this.localVarTable[id]) {
@@ -178,10 +187,10 @@ export default class Listener extends GrammarListener {
 
     exitFun_id(ctx) {
         const id = ctx.getText()
-        if (this.globalSymTable[id]) {
+        if (this.funTable[id]) {
             throw new SemanicError(`Duplicate ID '${id}'`, ctx)
         }
-        this.globalSymTable[id] = {kind: "function", type: this.currFunType, dim_1: null, dim_2: null, params: null}
+        this.funTable[id] = {type: this.currFunType, params: null}
         this.currScope = id
     }
 
@@ -198,13 +207,13 @@ export default class Listener extends GrammarListener {
         this.currParamsList?.push(this.currVarType.type || "number")
     }
     exitParams_done() {
-        this.globalSymTable[this.currScope].params = this.currParamsList.slice()
+        this.funTable[this.currScope].params = this.currParamsList.slice()
     }
 
     /** FUN ENDS */
 
     exitEnd(ctx) {
-        console.log("GLOBAL SYMBOLS:", this.globalSymTable)
+        console.log("PROGRAM:", this.progName, "GLOBAL FUNS:", this.funTable, "GLOBAL VARS:", this.globalVarTable)
         console.log("DONE")
     }
 
