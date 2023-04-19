@@ -16,7 +16,8 @@ import GrammarListener from "./lib/GrammarListener.js";
  * @typedef {{
 *      type: ("number" | "boolean"),
 *      dim_1: number | null,
-*      dim_2: number | null
+*      dim_2: number | null,
+*      address: string
 * }} VarInfo
 */
 
@@ -55,6 +56,16 @@ export default class Listener extends GrammarListener {
      * @type {{[key: string]: FunInfo}}
      */
     funTable
+
+    /**
+     * @type {number}
+     */
+    globalVarNum
+
+    /**
+     * @type {number}
+     */
+    localVarNum
 
     /**
      * @type {{
@@ -110,6 +121,8 @@ export default class Listener extends GrammarListener {
         this.currParamsList = []
         this.currFunType = "void"
         this.progName = null
+        this.globalVarNum = 0
+        this.localVarNum = 0
     }
 
     getQuadruples() {
@@ -153,17 +166,17 @@ export default class Listener extends GrammarListener {
             if  (this.globalVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2}
+            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `g${this.currVarType.type.charAt(0)}_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
-            this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2}
+            this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `l${this.currVarType.type.charAt(0)}_${this.localVarNum++}`}
 
         }
     }
-
+    
     exitFunctions() {
         this.currScope = "$global"
     }
@@ -203,11 +216,15 @@ export default class Listener extends GrammarListener {
             throw new SemanicError(`Duplicate ID '${id}'`, ctx)
         }
 
-        this.localVarTable[id] = {...(this.currVarType)}
+        this.localVarTable[id] = {...(this.currVarType), address: `l${this.currVarType.type.charAt(0)}_${this.localVarNum++}`}
         this.currParamsList?.push(this.currVarType.type || "number")
     }
     exitParams_done() {
         this.funTable[this.currScope].params = this.currParamsList.slice()
+    }
+
+    enterLocal_vars() {
+        this.localVarNum = 0
     }
 
     /** FUN ENDS */
@@ -215,6 +232,12 @@ export default class Listener extends GrammarListener {
     exitEnd(ctx) {
         console.log("PROGRAM:", this.progName, "GLOBAL FUNS:", this.funTable, "GLOBAL VARS:", this.globalVarTable)
         console.log("DONE")
+    }
+
+    /** EXPRESSIONS **/
+
+    exitLiteral(ctx) {
+        
     }
 
     exitExpression(ctx) {
