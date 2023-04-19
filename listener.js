@@ -2,6 +2,7 @@ import { ParserRuleContext } from "antlr4";
 import GrammarListener from "./lib/GrammarListener.js";
 import Stack from "./stack.js";
 import semanticCube from "./semantic_cube.js";
+import { ParserError } from "./error_listener.js";
 
 /**
  * @typedef {(string|null)[]} Quadruple
@@ -131,11 +132,21 @@ export default class Listener extends GrammarListener {
      * @type {Stack<string>}
      */
     tempVarQueue
+    
+    /**
+     * @type {number}
+     */
+    constNum
 
     /**
-     * @type {{[key: string]: number}}
+     * @type {{[key: string]: (number|boolean)}}
      */
     cosntTable
+
+    /**
+     * @type {{[key: string]: (string|undefined)}}
+     */
+    constNumTracker
 
     /**
      * 
@@ -158,10 +169,18 @@ export default class Listener extends GrammarListener {
         this.operatorStack = new Stack()
         this.operandStack = new Stack()
         this.tempVarQueue = new Stack()
+
+        this.constNum = 0
+        this.constNumTracker = {}
+        this.cosntTable = {"$c_f": false, "$c_t": true}
     }
 
     getQuadruples() {
         return this.quadruples
+    }
+
+    getConstTable() {
+        return this.cosntTable
     }
 
     exitProgram_name(ctx) {
@@ -201,13 +220,13 @@ export default class Listener extends GrammarListener {
             if  (this.globalVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `g${this.currVarType.type.charAt(0)}_${this.globalVarNum++}`}
+            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$g_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
                 throw new SemanicError(`duplicate ID '${id}'`, ctx)
             }
-            this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `l${this.currVarType.type.charAt(0)}_${this.localVarNum++}`}
+            this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$l_${this.localVarNum++}`}
 
         }
     }
@@ -224,6 +243,7 @@ export default class Listener extends GrammarListener {
         this.currParamsList = []
         this.localVarTable = {}
         this.currFunType = "void"
+        this.localVarNum = 0
     }
     exitFunction_decl() {
         console.log("LOCAL VARS", this.localVarTable)
@@ -251,31 +271,43 @@ export default class Listener extends GrammarListener {
             throw new SemanicError(`Duplicate ID '${id}'`, ctx)
         }
 
-        this.localVarTable[id] = {...(this.currVarType), address: `l${this.currVarType.type.charAt(0)}_${this.localVarNum++}`}
+        this.localVarTable[id] = {...(this.currVarType), address: `$l_${this.localVarNum++}`}
         this.currParamsList?.push(this.currVarType.type || "number")
     }
     exitParams_done() {
         this.funTable[this.currScope].params = this.currParamsList.slice()
     }
 
-    enterLocal_vars() {
-        this.localVarNum = 0
-    }
-
     /** FUN ENDS */
 
     exitEnd(ctx) {
         console.log("PROGRAM:", this.progName, "GLOBAL FUNS:", this.funTable, "GLOBAL VARS:", this.globalVarTable)
-        console.log(this.operandStack, this.operatorStack)
+        console.log(this.operandStack)
         console.log("DONE")
     }
 
     /** EXPRESSIONS **/
 
     exitLiteral_num(ctx) {
-        this.operandStack.push({address: ctx.getText(), type: "number"})
+        const numStr = ctx.getText()
+        const existing = this.constNumTracker[numStr]
+        if (existing) {
+            return this.operandStack.push({address: existing, type: "number"})
+        }
+        const numVal = parseFloat(numStr)
+        const address = `$c_${this.constNum++}`
+        this.constNumTracker[numStr] = address
+        this.cosntTable[address] = numVal
+        this.operandStack.push({address: address, type: "number"})
     }
     
+    exitLiteral_bool(ctx) {
+        if (ctx.getText() === "true") {
+            return this.operandStack.push({address: "$c_t", type: "boolean"})
+        }
+        this.operandStack.push({address: "$c_f", type: "boolean"})
+    }
+
     exitConjunction(ctx) {
         this.handleExpQuadrupe(["AND"], ctx)
     }
@@ -325,12 +357,17 @@ export default class Listener extends GrammarListener {
         this.operatorStack.pop()
     }
 
+    /**
+     * @param {string} addr 
+     */
     releaseTemp(addr) {
+        if (addr.charAt(1) !== "t") {return}
+
         this.tempVarQueue.push(addr)
     }
     getTemp() {
         if (this.tempVarQueue.isEmpty()) {
-            return `tt_${this.tempVarNum++}`
+            return `$t_${this.tempVarNum++}`
         }
         return this.tempVarQueue.pop()
     }
@@ -347,8 +384,10 @@ export default class Listener extends GrammarListener {
         const rightOp = this.operandStack.pop()
         const leftOp = this.operandStack.pop()
         const operator = this.operatorStack.pop()
-        
-        //console.log({operator, leftOp, rightOp})
+
+        if (!rightOp || !leftOp || !operator) {
+            throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
+        }
 
         const resultType = semanticCube[operator]?.[leftOp.type]?.[rightOp.type]
 
@@ -363,28 +402,10 @@ export default class Listener extends GrammarListener {
 
         this.operandStack.push({address: tempAddr, type: resultType})
 
-        if (isTemp(rightOp.address)) {
-            this.releaseTemp(rightOp.address)
-        }
-
-        if (isTemp(leftOp.address)) {
-            this.releaseTemp(leftOp.address)
-        }
-
-
+        this.releaseTemp(rightOp.address)
+        this.releaseTemp(leftOp.address)
 
     }
-
-    exitExpression(ctx) {
-        
-    }
-}
-
-/**
- * @param {string} addr 
- */
-function isTemp(addr) {
-    return addr.charAt(0) === "t"
 }
 
 /** 

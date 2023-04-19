@@ -18,12 +18,25 @@ parser.buildParseTrees = true
 parser.removeErrorListeners();
 parser.addErrorListener(new ParserErrorListener());
 
+try {
+    parser.start()
+}
+catch(e) {
+    if (e instanceof ParserError) {
+        console.error(`line ${e.line}:${e.posInLine} ${e.message}`)
+    }
+    else {
+        console.error(e)
+    }
+    process.exit(1)
+}
+
 const listener = new Listener()
 parser.addParseListener(listener)
 
 try {
     parser.start()
-    console.log(listener.getQuadruples())
+    console.log(listener.getQuadruples(), listener.getConstTable())
 }
 catch(e) {
     if (e instanceof SemanicError || e instanceof ParserError) {
