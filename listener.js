@@ -1,5 +1,7 @@
 import { ParserRuleContext } from "antlr4";
 import GrammarListener from "./lib/GrammarListener.js";
+import Stack from "./stack.js";
+import semanticCube from "./semantic_cube.js";
 
 /**
  * @typedef {(string|null)[]} Quadruple
@@ -24,6 +26,10 @@ import GrammarListener from "./lib/GrammarListener.js";
 /**
  * @typedef {("number" | "boolean")[]} ParamsList
 */
+
+/**
+ * @typedef {{type: ("number" | "boolean", address: string)}} OperandInfo
+ */
 
 const operatorDictionary = {
     "+": "ADD",
@@ -68,10 +74,15 @@ export default class Listener extends GrammarListener {
     localVarNum
 
     /**
+     * @type {number}
+     */
+    tempVarNum
+
+    /**
      * @type {{
      *  type: ("number" | "boolean" | null), 
      *  dim_1: number|null, 
-     *  dim_2: number|null,
+     *  dim_2: number|null
      * }}
      */
     currVarType
@@ -107,6 +118,26 @@ export default class Listener extends GrammarListener {
     progName
 
     /**
+     * @type {Stack<OperandInfo>}
+     */
+    operandStack
+
+    /**
+     * @type {Stack<string>}
+     */
+    operatorStack
+    
+    /**
+     * @type {Stack<string>}
+     */
+    tempVarQueue
+
+    /**
+     * @type {{[key: string]: number}}
+     */
+    cosntTable
+
+    /**
      * 
      * @param {Quadruple[]?} q
      */
@@ -123,6 +154,10 @@ export default class Listener extends GrammarListener {
         this.progName = null
         this.globalVarNum = 0
         this.localVarNum = 0
+        this.tempVarNum = 0
+        this.operatorStack = new Stack()
+        this.operandStack = new Stack()
+        this.tempVarQueue = new Stack()
     }
 
     getQuadruples() {
@@ -231,18 +266,125 @@ export default class Listener extends GrammarListener {
 
     exitEnd(ctx) {
         console.log("PROGRAM:", this.progName, "GLOBAL FUNS:", this.funTable, "GLOBAL VARS:", this.globalVarTable)
+        console.log(this.operandStack, this.operatorStack)
         console.log("DONE")
     }
 
     /** EXPRESSIONS **/
 
-    exitLiteral(ctx) {
+    exitLiteral_num(ctx) {
+        this.operandStack.push({address: ctx.getText(), type: "number"})
+    }
+    
+    exitConjunction(ctx) {
+        this.handleExpQuadrupe(["AND"], ctx)
+    }
+
+    exitRelation(ctx) {
+        this.handleExpQuadrupe(["OR"])
+    }
+
+    exitAddition(ctx) {
+        this.handleExpQuadrupe(["EQ", "NE", "GT", "GE", "LT", "LE"], ctx)
+    }
+
+    exitTerm(ctx) {
+        this.handleExpQuadrupe(["ADD", "SUB"], ctx)
+    }
+
+    exitFactor(ctx) {
+        this.handleExpQuadrupe(["MUL", "DIV", "MOD"], ctx)
+    }
+
+    exitConjuction_op(ctx) {
+        this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+    exitRelation_op(ctx) {
+        this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+    exitAddition_op(ctx) {
+        this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+    exitTerm_op(ctx) {
+        this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+
+    exitFactor_op(ctx) {
+        this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+    enterParen_exp(ctx) {
+        this.operatorStack.push("")
+    }
+
+    exitParen_exp(ctx) {
+        this.operatorStack.pop()
+    }
+
+    releaseTemp(addr) {
+        this.tempVarQueue.push(addr)
+    }
+    getTemp() {
+        if (this.tempVarQueue.isEmpty()) {
+            return `tt_${this.tempVarNum++}`
+        }
+        return this.tempVarQueue.pop()
+    }
+
+    /**
+     * @param {string[]} opArr 
+     * @param {ParserRuleContext} ctx
+     */
+    handleExpQuadrupe(opArr, ctx) {
+        if (!opArr.includes(this.operatorStack.peek())) {
+            return
+        }
+
+        const rightOp = this.operandStack.pop()
+        const leftOp = this.operandStack.pop()
+        const operator = this.operatorStack.pop()
         
+        //console.log({operator, leftOp, rightOp})
+
+        const resultType = semanticCube[operator]?.[leftOp.type]?.[rightOp.type]
+
+        if (!resultType) {
+            throw new SemanicError("Type mismatch", ctx)
+        }
+
+        const tempAddr = this.getTemp()
+        const quad = generateQuadruple(operator, leftOp.address, rightOp.address, tempAddr)
+        
+        this.quadruples.push(quad)
+
+        this.operandStack.push({address: tempAddr, type: resultType})
+
+        if (isTemp(rightOp.address)) {
+            this.releaseTemp(rightOp.address)
+        }
+
+        if (isTemp(leftOp.address)) {
+            this.releaseTemp(leftOp.address)
+        }
+
+
+
     }
 
     exitExpression(ctx) {
         
     }
+}
+
+/**
+ * @param {string} addr 
+ */
+function isTemp(addr) {
+    return addr.charAt(0) === "t"
 }
 
 /** 

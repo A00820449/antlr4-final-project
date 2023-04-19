@@ -56,24 +56,19 @@ while_stmt: 'while' '(' expression ')' block ';';
 if_else_stmt: 'if' '(' expression ')' block else_block? ';';
 else_block: 'else' block;
 
-expression: conjunction expression_aux;
-expression_aux: (conjuction_op conjunction)*;
+expression: conjunction (conjuction_op conjunction)*;
 conjuction_op: '&';
 
-conjunction: relation conjunction_aux;
-conjunction_aux: (relation_op relation)*;
+conjunction: relation (relation_op relation)*;
 relation_op: '|';
 
-relation: addition relation_aux;
-relation_aux: (addition_op addition)*;
+relation: addition (addition_op addition)*;
 addition_op: '==' | '!=' | '>' | '>=' | '<' | '<=' ;
 
-addition: term addition_aux;
-addition_aux: (term_op term)*;
+addition: term (term_op term)*;
 term_op: '+' | '-';
 
-term: factor factor_aux;
-factor_aux: (factor_op factor)*;
+term: factor (factor_op factor)*;
 factor_op: '*' | '/' | '%';
 
 factor: negation_op? negation;
@@ -84,7 +79,9 @@ negation: paren_exp | atom;
 paren_exp: '(' expression ')';
 atom: var_access | fun_call | literal;
 
-literal: NUM_CTE | 'true' | 'false';
+literal: literal_num | literal_bool;
+literal_num: NUM_CTE;
+literal_bool: 'true' | 'false';
 
 fun_call: built_in | custom_fun_call;
 
