@@ -363,14 +363,7 @@ export default class Listener extends GrammarListener {
 
     exitLiteral_num(ctx) {
         const numStr = ctx.getText()
-        const existing = this.constNumTracker[numStr]
-        if (existing) {
-            return this.operandStack.push({address: existing, type: "number"})
-        }
-        const numVal = parseFloat(numStr)
-        const address = `$c_${this.constNum++}`
-        this.constNumTracker[numStr] = address
-        this.constTable[address] = numVal
+        const address = this.getConst(numStr)
         this.operandStack.push({address: address, type: "number"})
     }
     
@@ -488,10 +481,17 @@ export default class Listener extends GrammarListener {
     }
 
     /**
-     * @param {string} str 
+     * @param {string} token 
      */
-    getConst(str) {
-        const existing = this.constNumTracker[str];
+    getConst(token) {
+        const existing = this.constNumTracker[token];
+        if (existing) {
+            return existing
+        }
+        const addr = `$c_${this.constNum++}`
+        this.constNumTracker[token] = addr
+        this.constTable[addr] = parseFloat(token)
+        return addr
     }
 
     /**
