@@ -9,6 +9,7 @@ const filename = process.argv[2] || "input.txt"
 
 const input = fs.readFileSync(filename).toString()
 
+/* VERFIFYING SYNTAX */
 const chars = new InputStream(input)
 const lexer = new GrammarLexer(chars)
 const tokens = new CommonTokenStream(lexer)
@@ -31,15 +32,20 @@ catch(e) {
     process.exit(1)
 }
 
+/* VERIFYING SEMANTICS */
+const semanticChars = new InputStream(input)
+const semanticLexer = new GrammarLexer(semanticChars)
+const semanticTokens = new CommonTokenStream(semanticLexer)
 const listener = new Listener()
-parser.addParseListener(listener)
+const semanticParser = new GrammarParser(semanticTokens)
+semanticParser.addParseListener(listener)
 
 try {
-    parser.start()
+    semanticParser.start()
     console.log(listener.getQuadruples(), listener.getConstTable())
 }
 catch(e) {
-    if (e instanceof SemanicError || e instanceof ParserError) {
+    if (e instanceof SemanicError) {
         console.error(`line ${e.line}:${e.posInLine} ${e.message}`)
     }
     else {

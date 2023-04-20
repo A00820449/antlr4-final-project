@@ -328,6 +328,10 @@ export default class Listener extends GrammarListener {
         this.handleExpQuadrupe(["MUL", "DIV", "MOD"], ctx)
     }
 
+    exitNegation(ctx) {
+        this.handleUnaryQuadruple(["NEG", "NOT"], ctx)
+    }
+
     exitConjuction_op(ctx) {
         this.operatorStack.push(operatorDictionary[ctx.getText()])
     }
@@ -344,9 +348,12 @@ export default class Listener extends GrammarListener {
         this.operatorStack.push(operatorDictionary[ctx.getText()])
     }
 
-
     exitFactor_op(ctx) {
         this.operatorStack.push(operatorDictionary[ctx.getText()])
+    }
+
+    exitNegation_op(ctx) {
+        this.operatorStack.push(unaryDictionary[ctx.getText()])
     }
 
     enterParen_exp(ctx) {
@@ -392,7 +399,7 @@ export default class Listener extends GrammarListener {
         const resultType = semanticCube[operator]?.[leftOp.type]?.[rightOp.type]
 
         if (!resultType) {
-            throw new SemanicError("Type mismatch", ctx)
+            throw new SemanicError("type mismatch", ctx)
         }
 
         const tempAddr = this.getTemp()
@@ -405,6 +412,40 @@ export default class Listener extends GrammarListener {
         this.releaseTemp(rightOp.address)
         this.releaseTemp(leftOp.address)
 
+    }
+
+    /**
+     * 
+     * @param {string[]} opArr 
+     * @param {ParserRuleContext} ctx 
+     */
+    handleUnaryQuadruple(opArr, ctx) {
+        if (!opArr.includes(this.operatorStack.peek())) {
+            return
+        }
+
+        const operand = this.operandStack.pop()
+        const operator = this.operatorStack.pop()
+
+        if (!operand || !operator) {
+            throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
+        }
+
+        const resultType = semanticCube[operator]?.[operand.type]
+
+        if (!resultType) {
+            console.log(operand, operator)
+            throw new SemanicError("type mismatch", ctx)
+        }
+
+        const tempAddr = this.getTemp()
+        const quad = generateQuadruple(operator, operand.address, null, tempAddr)
+        
+        this.quadruples.push(quad)
+
+        this.operandStack.push({address: tempAddr, type: resultType})
+
+        this.releaseTemp(operand.address)
     }
 }
 
