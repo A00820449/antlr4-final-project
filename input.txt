@@ -1,6 +1,7 @@
 program exp:
-var boolean a;
+var boolean a, b;
 main: {
     #a = 1 + 2 * (3 - 4 / 5) / 6;
-    a = 1 + 2 - 3 < 4 + 1 | false;
+    b = false;
+    a = !b | 5 * 16 != 8;
 }

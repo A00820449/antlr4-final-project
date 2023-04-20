@@ -263,32 +263,10 @@ export default class Listener extends GrammarListener {
         this.currAccessDim2 = null
     }
 
-    exitVar_access(ctx) {
-        /*let varDims = 0
-        let accessDims = 0
-
-        if (this.currAccessDim1 !== null) {
-            accessDims++
-        }
-        if (this.currAccessDim2 !== null) {
-            accessDims++
-        }
-
-        if (this.currAccessVarInfo.dim_1 !== null) {
-            varDims++
-        }
-        if (this.currAccessVarInfo.dim_2 !== null) {
-            varDims++
-        }
-
-        if (varDims > accessDims) {
-            this.inError = true
+    exitNon_dim_access(ctx) {
+        if (this.currAccessVarInfo.dim_1) {
             throw new SemanticError("missing vector dimension(s)", ctx)
         }
-        if (varDims < accessDims) {
-            this.inError = true
-            throw new SemanticError("too many vector dimensions", ctx)
-        }*/
 
         this.operandStack.push({address: this.currAccessVarInfo.address, type: this.currAccessVarInfo.type})
 
@@ -318,29 +296,9 @@ export default class Listener extends GrammarListener {
 
         if (!varInfo) {
             this.inError = true
-            throw new SemanticError("variable not defined", ctx)
+            throw new SemanticError(`variable not defined '${id}'`, ctx)
         }
         this.currAccessVarInfo = {...varInfo}
-    }
-    exitDim_access_1(ctx) {
-        return
-        if (this.currAccessVarInfo.dim_1 == null) {
-            this.inError = true
-            throw new SemanticError("too many vector dimensions", ctx)
-        }
-        this.currAccessDim1 = this.operandStack.pop() || null
-        const q = generateQuadruple("RANG", this.currAccessDim1.address, "0", `${this.currAccessVarInfo.dim_1}`)
-        this.quadruples.push(q)
-    }
-    exitDim_access_2(ctx) {
-        return
-        if (this.currAccessVarInfo.dim_2 == null) {
-            this.inError = true
-            throw new SemanticError("too many vector dimensions", ctx)
-        }
-        this.currAccessDim2 = this.operandStack.pop() || null
-        const q = generateQuadruple("RANG", this.currAccessDim2.address, "0", `${this.currAccessVarInfo.dim_2}`)
-        this.quadruples.push(q)
     }
 
     exitFunctions() {

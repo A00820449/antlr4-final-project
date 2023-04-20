@@ -96,7 +96,11 @@ custom_fun_call: ID '(' arg_list? ')';
 
 arg_list: expression (',' expression)*;
 
-var_access: id_access dim_access_1? dim_access_2?;
+var_access: non_dim_access | arr_access | mat_access;
+
+non_dim_access: id_access ; 
+arr_access: id_access dim_access_1;
+mat_access: id_access dim_access_1 dim_access_2;
 
 id_access: ID;
 
