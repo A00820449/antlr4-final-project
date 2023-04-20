@@ -141,7 +141,7 @@ export default class Listener extends GrammarListener {
     /**
      * @type {{[key: string]: (number|boolean|undefined)}}
      */
-    cosntTable
+    constTable
 
     /**
      * @type {{[key: string]: (string|undefined)}}
@@ -187,9 +187,9 @@ export default class Listener extends GrammarListener {
         this.operandStack = new Stack()
         this.tempVarQueue = new Stack()
 
-        this.constNum = 0
-        this.constNumTracker = {}
-        this.cosntTable = {"$c_f": false, "$c_t": true}
+        this.constNum = 1
+        this.constNumTracker = {"0": "$c_0"}
+        this.constTable = {"$c_f": false, "$c_t": true, "$c_0": 0}
 
         this.currAccessVarInfo = null
         this.currAccessDim1 = null
@@ -202,7 +202,7 @@ export default class Listener extends GrammarListener {
     }
 
     getConstTable() {
-        return this.cosntTable
+        return this.constTable
     }
 
     exitProgram_name(ctx) {
@@ -265,6 +265,7 @@ export default class Listener extends GrammarListener {
 
     exitNon_dim_access(ctx) {
         if (this.currAccessVarInfo.dim_1) {
+            this.inError = true
             throw new SemanticError("missing vector dimension(s)", ctx)
         }
 
@@ -369,7 +370,7 @@ export default class Listener extends GrammarListener {
         const numVal = parseFloat(numStr)
         const address = `$c_${this.constNum++}`
         this.constNumTracker[numStr] = address
-        this.cosntTable[address] = numVal
+        this.constTable[address] = numVal
         this.operandStack.push({address: address, type: "number"})
     }
     
@@ -455,6 +456,20 @@ export default class Listener extends GrammarListener {
         this.releaseTemp(opRight.address)
     }
 
+    exitPrint_str(ctx) {
+        const str = JSON.parse(ctx.getText())
+
+        const q = generateQuadruple("PRINTS", str)
+        this.quadruples.push(q)
+    }
+
+    exitPrint_exp(ctx) {
+        const op = this.operandStack.pop()
+        
+        const q = generateQuadruple("PRINTE", op.address)
+        this.quadruples.push(q)
+    }
+
     /* STATEMENTS END */
 
     /**
@@ -470,6 +485,13 @@ export default class Listener extends GrammarListener {
             return `$t_${this.tempVarNum++}`
         }
         return this.tempVarQueue.pop()
+    }
+
+    /**
+     * @param {string} str 
+     */
+    getConst(str) {
+        const existing = this.constNumTracker[str];
     }
 
     /**

@@ -88,7 +88,9 @@ fun_call: built_in | custom_fun_call;
 built_in: print_fun | load_fun ;
 
 print_fun: 'print' '(' (print_arg (',' print_arg)*)? ')';
-print_arg: expression | STR_CTE;
+print_arg: print_exp | print_str;
+print_exp: expression;
+print_str: STR_CTE;
 
 load_fun: 'load' '(' STR_CTE ')';
 
