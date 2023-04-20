@@ -2,7 +2,7 @@ import GrammarLexer from "./lib/GrammarLexer.js"
 import GrammarParser from "./lib/GrammarParser.js"
 import { InputStream, CommonTokenStream } from "antlr4"
 import fs from "node:fs"
-import Listener, { SemanicError } from "./listener.js"
+import Listener, { SemanticError } from "./listener.js"
 import ParserErrorListener, { ParserError } from "./error_listener.js"
 
 const filename = process.argv[2] || "input.txt"
@@ -38,6 +38,11 @@ const semanticLexer = new GrammarLexer(semanticChars)
 const semanticTokens = new CommonTokenStream(semanticLexer)
 const listener = new Listener()
 const semanticParser = new GrammarParser(semanticTokens)
+
+semanticParser.removeErrorListeners()
+semanticParser.buildParseTrees = true
+semanticParser.addErrorListener(new ParserErrorListener());
+
 semanticParser.addParseListener(listener)
 
 try {
@@ -45,7 +50,7 @@ try {
     console.log(listener.getQuadruples(), listener.getConstTable())
 }
 catch(e) {
-    if (e instanceof SemanicError) {
+    if (e instanceof SemanticError) {
         console.error(`line ${e.line}:${e.posInLine} ${e.message}`)
     }
     else {

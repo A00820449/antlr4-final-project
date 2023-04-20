@@ -60,7 +60,7 @@ export default class Listener extends GrammarListener {
     quadruples
 
     /**
-     * @type {{[key: string]: FunInfo}}
+     * @type {{[key: string]: (FunInfo|undefined)}}
      */
     funTable
 
@@ -104,12 +104,12 @@ export default class Listener extends GrammarListener {
     currParamsList
 
     /**
-     * @type {{[key: string]: VarInfo}}
+     * @type {{[key: string]: (VarInfo | undefined)}}
      */
     globalVarTable
 
     /**
-     * @type {{[key: string]: VarInfo}}
+     * @type {{[key: string]: (VarInfo | undefined)}}
      */
     localVarTable
 
@@ -139,7 +139,7 @@ export default class Listener extends GrammarListener {
     constNum
 
     /**
-     * @type {{[key: string]: (number|boolean)}}
+     * @type {{[key: string]: (number|boolean|undefined)}}
      */
     cosntTable
 
@@ -147,6 +147,23 @@ export default class Listener extends GrammarListener {
      * @type {{[key: string]: (string|undefined)}}
      */
     constNumTracker
+
+    /**
+     * @type {(VarInfo|null)}
+     */
+    currAccessVarInfo
+    
+    /**
+     * @type {OperandInfo|null}
+     */
+    currAccessDim1
+
+    /**
+     * @type {OperandInfo|null}
+     */
+    currAccessDim2
+
+    inError
 
     /**
      * 
@@ -173,6 +190,11 @@ export default class Listener extends GrammarListener {
         this.constNum = 0
         this.constNumTracker = {}
         this.cosntTable = {"$c_f": false, "$c_t": true}
+
+        this.currAccessVarInfo = null
+        this.currAccessDim1 = null
+        this.currAccessDim2 = null
+        this.inError = false
     }
 
     getQuadruples() {
@@ -201,7 +223,8 @@ export default class Listener extends GrammarListener {
     exitVar_type_dim_1_num(ctx) {
         const num = Math.trunc(parseFloat(ctx.getText()))
         if (num <= 0) {
-            throw new SemanicError("vector dimension must be positive", ctx)
+            this.inError = true
+            throw new SemanticError("vector dimension must be positive", ctx)
         }
         this.currVarType.dim_1 = num
     }
@@ -209,7 +232,8 @@ export default class Listener extends GrammarListener {
     exitVar_type_dim_2_num(ctx) {
         const num = Math.trunc(parseFloat(ctx.getText()))
         if (num <= 0) {
-            throw new SemanicError("vector dimension must be positive", ctx)
+            this.inError = true
+            throw new SemanticError("vector dimension must be positive", ctx)
         }
         this.currVarType.dim_2 = num
     }
@@ -218,19 +242,107 @@ export default class Listener extends GrammarListener {
         const id = ctx.getText()
         if (this.currScope === "$global") {
             if  (this.globalVarTable[id]) {
-                throw new SemanicError(`duplicate ID '${id}'`, ctx)
+                this.inError = true
+                throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
             this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$g_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
-                throw new SemanicError(`duplicate ID '${id}'`, ctx)
+                this.inError = true
+                throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
             this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$l_${this.localVarNum++}`}
 
         }
     }
-    
+
+    enterVar_access() {
+        this.currAccessVarInfo = null
+        this.currAccessDim1 = null
+        this.currAccessDim2 = null
+    }
+
+    exitVar_access(ctx) {
+        /*let varDims = 0
+        let accessDims = 0
+
+        if (this.currAccessDim1 !== null) {
+            accessDims++
+        }
+        if (this.currAccessDim2 !== null) {
+            accessDims++
+        }
+
+        if (this.currAccessVarInfo.dim_1 !== null) {
+            varDims++
+        }
+        if (this.currAccessVarInfo.dim_2 !== null) {
+            varDims++
+        }
+
+        if (varDims > accessDims) {
+            this.inError = true
+            throw new SemanticError("missing vector dimension(s)", ctx)
+        }
+        if (varDims < accessDims) {
+            this.inError = true
+            throw new SemanticError("too many vector dimensions", ctx)
+        }*/
+
+        this.operandStack.push({address: this.currAccessVarInfo.address, type: this.currAccessVarInfo.type})
+
+    }
+
+    exitId_access(ctx) {
+        /**
+         * @type {string}
+         */
+        const id = ctx.getText()
+
+        const globalVarAcccess = this.globalVarTable[id]
+        const localVarAccess = this.localVarTable[id]
+
+        let varInfo
+        if (this.currScope === "$global") {
+            varInfo = globalVarAcccess
+        }
+        else {
+            if (localVarAccess) {
+                varInfo = localVarAccess
+            }
+            else {
+                varInfo = globalVarAcccess
+            }
+        }
+
+        if (!varInfo) {
+            this.inError = true
+            throw new SemanticError("variable not defined", ctx)
+        }
+        this.currAccessVarInfo = {...varInfo}
+    }
+    exitDim_access_1(ctx) {
+        return
+        if (this.currAccessVarInfo.dim_1 == null) {
+            this.inError = true
+            throw new SemanticError("too many vector dimensions", ctx)
+        }
+        this.currAccessDim1 = this.operandStack.pop() || null
+        const q = generateQuadruple("RANG", this.currAccessDim1.address, "0", `${this.currAccessVarInfo.dim_1}`)
+        this.quadruples.push(q)
+    }
+    exitDim_access_2(ctx) {
+        return
+        if (this.currAccessVarInfo.dim_2 == null) {
+            this.inError = true
+            throw new SemanticError("too many vector dimensions", ctx)
+        }
+        this.currAccessDim2 = this.operandStack.pop() || null
+        const q = generateQuadruple("RANG", this.currAccessDim2.address, "0", `${this.currAccessVarInfo.dim_2}`)
+        this.quadruples.push(q)
+    }
+
     exitFunctions() {
         this.currScope = "$global"
     }
@@ -256,7 +368,8 @@ export default class Listener extends GrammarListener {
     exitFun_id(ctx) {
         const id = ctx.getText()
         if (this.funTable[id]) {
-            throw new SemanicError(`Duplicate ID '${id}'`, ctx)
+            this.inError = true
+            throw new SemanticError(`duplicate ID '${id}'`, ctx)
         }
         this.funTable[id] = {type: this.currFunType, params: null}
         this.currScope = id
@@ -268,7 +381,8 @@ export default class Listener extends GrammarListener {
     exitParam_id(ctx) {
         const id = ctx.getText()
         if (this.localVarTable[id]) {
-            throw new SemanicError(`Duplicate ID '${id}'`, ctx)
+            this.inError = true
+            throw new SemanticError(`duplicate ID '${id}'`, ctx)
         }
 
         this.localVarTable[id] = {...(this.currVarType), address: `$l_${this.localVarNum++}`}
@@ -313,7 +427,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitRelation(ctx) {
-        this.handleExpQuadrupe(["OR"])
+        this.handleExpQuadrupe(["OR"], ctx)
     }
 
     exitAddition(ctx) {
@@ -364,6 +478,27 @@ export default class Listener extends GrammarListener {
         this.operatorStack.pop()
     }
 
+    /* STATEMENTS START */
+
+    exitAssignment(ctx) {
+        if (this.inError) {return}
+
+        const opRight = this.operandStack.pop()
+        const opLeft = this.operandStack.pop()
+
+        if (opRight?.type !== opLeft?.type) {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+        const q = generateQuadruple("ASS", opRight?.address, null, opLeft?.address)
+        this.quadruples.push(q)
+
+        this.releaseTemp(opLeft.address)
+        this.releaseTemp(opRight.address)
+    }
+
+    /* STATEMENTS END */
+
     /**
      * @param {string} addr 
      */
@@ -393,13 +528,15 @@ export default class Listener extends GrammarListener {
         const operator = this.operatorStack.pop()
 
         if (!rightOp || !leftOp || !operator) {
+            this.inError = true
             throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
         }
 
         const resultType = semanticCube[operator]?.[leftOp.type]?.[rightOp.type]
 
         if (!resultType) {
-            throw new SemanicError("type mismatch", ctx)
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
         }
 
         const tempAddr = this.getTemp()
@@ -428,14 +565,15 @@ export default class Listener extends GrammarListener {
         const operator = this.operatorStack.pop()
 
         if (!operand || !operator) {
+            this.inError = true
             throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
         }
 
         const resultType = semanticCube[operator]?.[operand.type]
 
         if (!resultType) {
-            console.log(operand, operator)
-            throw new SemanicError("type mismatch", ctx)
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
         }
 
         const tempAddr = this.getTemp()
@@ -460,7 +598,7 @@ export function generateQuadruple(a, b, c, d) {
     return [a || null, b || null, c || null, d || null]
 }
 
-export class SemanicError extends Error {
+export class SemanticError extends Error {
 
     /**
      * @type {number}

@@ -96,7 +96,9 @@ custom_fun_call: ID '(' arg_list? ')';
 
 arg_list: expression (',' expression)*;
 
-var_access: ID dim_access_1? dim_access_2?;
+var_access: id_access dim_access_1? dim_access_2?;
+
+id_access: ID;
 
 dim_access_1: '[' expression ']';
 
