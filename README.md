@@ -1,7 +1,8 @@
 # Final project for Compiler Design
-* Miguel Angel Tornero Carrillo A00820449
-## Avance 1: LéxicoSintaxis
-Al momento ya está completa la generación del analizador léxico y sintáctico. También ya se empezó a trabajar en el analisis semántico. Está completa la detección de identificadores duplicados, y casi se completa la generación de la tabla de símbolos. Al momento se generan dos tablas: una para los símbolos globales, y de variables locales. Por último, se generó el cubo semántico (en el archivo `semantic_cube.js`), aunque todavía no están implementadas las expresiones. Se espera poder empezar a trabajar en ellas la siguente semana.
+* Miguel Angel Tornero Carrillo A00820449  
+* Github: <https://github.com/A00820449/antlr4-final-project>
+## Avance 2: 
+// TODO //
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
 ```bash
