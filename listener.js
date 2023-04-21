@@ -450,16 +450,16 @@ export default class Listener extends GrammarListener {
     }
 
     exitPrint_str(ctx) {
-        const str = JSON.parse(ctx.getText())
+        const addr = this.getConstStr(ctx.getText())
 
-        const q = generateQuadruple("PRINTS", str)
+        const q = generateQuadruple("PRNT", addr)
         this.quadruples.push(q)
     }
 
     exitPrint_exp(ctx) {
         const op = this.operandStack.pop()
         
-        const q = generateQuadruple("PRINTE", op.address)
+        const q = generateQuadruple("PRNT", op.address)
         this.quadruples.push(q)
     }
 
@@ -491,6 +491,14 @@ export default class Listener extends GrammarListener {
         const addr = `$c_${this.constNum++}`
         this.constNumTracker[token] = addr
         this.constTable[addr] = parseFloat(token)
+        return addr
+    }
+
+    getConstStr(token) {
+        const str = JSON.parse(token)
+        const addr = `$c_${this.constNum++}`
+
+        this.constTable[addr] = str
         return addr
     }
 
