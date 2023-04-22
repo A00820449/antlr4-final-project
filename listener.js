@@ -433,7 +433,7 @@ export default class Listener extends GrammarListener {
     /* STATEMENTS START */
 
     exitAssignment(ctx) {
-        if (this.inError) {return}
+        //if (this.inError) {return}
 
         const opRight = this.operandStack.pop()
         const opLeft = this.operandStack.pop()
