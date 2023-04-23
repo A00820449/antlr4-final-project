@@ -2,7 +2,7 @@
 * Miguel Angel Tornero Carrillo A00820449  
 * Github: <https://github.com/A00820449/antlr4-final-project>
 ## Avance 2: Semántica Básica de Variables y Cubo Semántico
-Ya se empezó la generación de cuadruplos. Al momento se encuentran implementadas las expresiones, el directo de funciones, semántica basica (usando un cubo semántico), estatutos if-else, y estatusos while. Los errores léxico-sintácticos y semánticos son desplegados en consola. Espero poder empezar a trabajar en la máquina virtual en la siguente semana.
+Ya se empezó la generación de cuadruplos. Al momento se encuentran implementadas las expresiones, el directo de funciones, semántica basica (usando un cubo semántico), estatutos if-else, y estatusos while. También se generan las tablas de constantes. Los errores léxico-sintácticos y semánticos son desplegados en consola. Espero poder empezar a trabajar en la máquina virtual en la siguente semana.
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
 ```bash
