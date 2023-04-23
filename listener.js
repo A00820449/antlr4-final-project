@@ -510,6 +510,34 @@ export default class Listener extends GrammarListener {
         this.fillGoto(gotoQuadIndex, this.quadruples.length)
     }
 
+    enterWhile_stmt() {
+        this.jumpStack.push(this.quadruples.length)
+    }
+
+    exitWhile_exp(ctx) {
+        this.jumpStack.push(this.quadruples.length)
+
+        const op = this.operandStack.pop()
+
+        if (!op || op?.type !== "boolean") {
+            this.inError = true
+            throw new SemanticError("while expression must be boolean", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("GOTF", op.address, null, null))
+    }
+
+    exitWhile_stmt() {
+        const gotoIndex = this.jumpStack.pop()
+        const expIndex = this.jumpStack.pop()
+
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+
+        this.fillGoto(this.quadruples.length - 1, expIndex)
+
+        this.fillGoto(gotoIndex, this.quadruples.length)
+    }
+
 
     /* STATEMENTS END */
 

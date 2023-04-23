@@ -3,13 +3,8 @@ function number test(): {
     print("lonely");
 }
 main: {
-    if (1 > 2) {
-        if (false) {
-            print("hi");
-        };
-        print("mark");
-    }
-    else {
-        print(0);
+    while (1 < 2) {
+        print("hello");
     };
+    print("hello");
 }

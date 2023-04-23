@@ -51,7 +51,8 @@ return_stmt: return_void | return_exp;
 return_void: 'return' ';';
 return_exp: 'return' expression ';';
 
-while_stmt: 'while' '(' expression ')' block ';';
+while_stmt: 'while' '(' while_exp ')' block ';';
+while_exp: expression;
 
 if_else_stmt: 'if' '(' if_exp ')' block else_block? ';';
 if_exp: expression;
