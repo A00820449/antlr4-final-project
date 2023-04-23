@@ -2,6 +2,6 @@ program exp:
 var boolean a;
 main: {
     # this is a comment
-    a = 1 + 2 < 4 * 1;
+    a = 1 + 2 < 4 * 4 | a;
     print(a, "hello\n", "world\n");
 }

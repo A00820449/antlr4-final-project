@@ -52,7 +52,8 @@ const listener = new Listener()
 
 try {
     walker.walk(listener, tree)
-    console.log(listener.getQuadruples(), listener.getConstTable())
+    listener.getQuadruples().forEach((v, i) => console.log(i, v))
+    console.log(listener.getConstTable())
 }
 catch(e) {
     if (e instanceof SemanticError || e instanceof ParserError) {

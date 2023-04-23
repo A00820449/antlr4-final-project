@@ -163,6 +163,11 @@ export default class Listener extends GrammarListener {
      */
     currAccessDim2
 
+    /**
+     * @type {Stack<number>}
+     */
+    jumpStack
+
     inError
 
     /**
@@ -195,6 +200,8 @@ export default class Listener extends GrammarListener {
         this.currAccessDim1 = null
         this.currAccessDim2 = null
         this.inError = false
+
+        this.jumpStack = new Stack()
     }
 
     getQuadruples() {
@@ -207,6 +214,24 @@ export default class Listener extends GrammarListener {
 
     exitProgram_name(ctx) {
         this.progName = ctx.getText()
+    }
+
+    enterProgram() {
+        this.jumpStack.push(this.quadruples.length)
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+    }
+
+    exitProgram() {
+        this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
+        console.log( {FUN: this.funTable, VARS: this.globalVarTable})
+    }
+
+    enterMain() {
+        this.currScope = "$global"
+
+        const gotoIndex = this.jumpStack.pop()
+
+        this.fillGoto(gotoIndex, this.quadruples.length)
     }
 
     /**VARS START */
@@ -302,10 +327,6 @@ export default class Listener extends GrammarListener {
         this.currAccessVarInfo = {...varInfo}
     }
 
-    exitFunctions() {
-        this.currScope = "$global"
-    }
-
     /**VARS END */
 
     /** FUN STARTS */
@@ -354,8 +375,6 @@ export default class Listener extends GrammarListener {
     /** FUN ENDS */
 
     exitEnd(ctx) {
-        console.log("PROGRAM:", this.progName, "GLOBAL FUNS:", this.funTable, "GLOBAL VARS:", this.globalVarTable)
-        console.log(this.operandStack)
         console.log("DONE")
     }
 
@@ -463,6 +482,35 @@ export default class Listener extends GrammarListener {
         this.quadruples.push(q)
     }
 
+    exitIf_exp(ctx) {
+        const op = this.operandStack.pop();
+        
+        if (!op || op?.type !== "boolean") {
+            this.inError = true
+            throw new SemanticError("if expression must be boolean", ctx)
+        }
+
+        this.jumpStack.push(this.quadruples.length)
+
+        this.quadruples.push(generateQuadruple("GOTF", op.address, null, null))
+    }
+
+    enterElse_block() {
+        const gotoQuadIndex = this.jumpStack.pop()
+
+        this.jumpStack.push(this.quadruples.length)
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+
+        this.fillGoto(gotoQuadIndex, this.quadruples.length)
+    }
+
+    exitIf_else_stmt(ctx) {
+        const gotoQuadIndex = this.jumpStack.pop()
+
+        this.fillGoto(gotoQuadIndex, this.quadruples.length)
+    }
+
+
     /* STATEMENTS END */
 
     /**
@@ -478,6 +526,14 @@ export default class Listener extends GrammarListener {
             return `$t_${this.tempVarNum++}`
         }
         return this.tempVarQueue.pop()
+    }
+
+    /**
+     * @param {number} index 
+     * @param {number} target 
+     */
+    fillGoto(index, target) {
+        this.quadruples[index][3] = `${target}`
     }
 
     /**

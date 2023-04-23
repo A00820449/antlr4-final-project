@@ -53,7 +53,8 @@ return_exp: 'return' expression ';';
 
 while_stmt: 'while' '(' expression ')' block ';';
 
-if_else_stmt: 'if' '(' expression ')' block else_block? ';';
+if_else_stmt: 'if' '(' if_exp ')' block else_block? ';';
+if_exp: expression;
 else_block: 'else' block;
 
 expression: conjunction (conjuction_op conjunction)*;
