@@ -1,10 +1,17 @@
 program comp:
+var boolean b;
+var number i;
 function number test(): {
     print("lonely");
 }
 main: {
-    while (1 < 2) {
-        print("hello");
+    i = 0;
+    b = false;
+    while (i <= 1000) {
+        if (b) {
+            print("even: ", i, "\n");
+        };
+        b = !b;
+        i = i + 1;
     };
-    print("hello");
 }
