@@ -480,6 +480,7 @@ export default class Listener extends GrammarListener {
         
         const q = generateQuadruple("PRNT", op.address)
         this.quadruples.push(q)
+        this.releaseTemp(op.address)
     }
 
     exitIf_exp(ctx) {
@@ -493,6 +494,7 @@ export default class Listener extends GrammarListener {
         this.jumpStack.push(this.quadruples.length)
 
         this.quadruples.push(generateQuadruple("GOTF", op.address, null, null))
+        this.releaseTemp(op.address)
     }
 
     enterElse_block() {
@@ -525,6 +527,7 @@ export default class Listener extends GrammarListener {
         }
 
         this.quadruples.push(generateQuadruple("GOTF", op.address, null, null))
+        this.releaseTemp(op.address)
     }
 
     exitWhile_stmt() {
