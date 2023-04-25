@@ -4,6 +4,7 @@ import { InputStream, CommonTokenStream, ParseTreeWalker } from "antlr4"
 import fs from "node:fs"
 import Listener, { SemanticError } from "./listener.js"
 import ParserErrorListener, { ParserError } from "./error_listener.js"
+import { inputSchema } from "./schema.js"
 
 const filename = process.argv[2] || "input.txt"
 
@@ -52,8 +53,16 @@ const listener = new Listener()
 
 try {
     walker.walk(listener, tree)
-    listener.getQuadruples().forEach((v, i) => console.log(i, v))
-    console.log(listener.getConstTable())
+
+    const quadruples = listener.getQuadruples().map((q) => {return {"0": q[0], "1": q[1], "2": q[2], "3": q[3]}})
+    const constTable = listener.getConstTable()
+
+    quadruples.forEach((v, i) => console.log(i, v))
+    console.log(constTable)
+
+    const output = inputSchema.parse({quadruples, constTable})
+
+    fs.writeFileSync("index.obj", JSON.stringify(output, null, 4))
 }
 catch(e) {
     if (e instanceof SemanticError || e instanceof ParserError) {

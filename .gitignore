@@ -109,3 +109,5 @@ lib
 
 # archive zip files
 *.zip
+
+*.obj
