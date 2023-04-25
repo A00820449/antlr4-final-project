@@ -49,26 +49,15 @@ Object.assign(globalMemory, input.constTable)
 
 /**
  * @param {string} addr
- * @returns {(number|boolean|string)}
  */
 function getMemory(addr) {
     if (addr.charAt(0) !== "$") {
         return parseInt(addr)
     }
 
-    /*if (addr.charAt(1) === "$") {
-        let nestAddr
-        if (addr.charAt(2) === "l") {
-            nestAddr = memStack.peek()?.[addr]
-        }
-        else {
-            nestAddr = globalMemory[addr]
-        }
-        if (typeof nestAddr !== "string") {
-            throw new Error("memory fault")
-        }
-        return getMemory(nestAddr)
-    }*/
+    if (addr.charAt(1) === "$") {
+        /* POINTERS */
+    }
 
 
     if (addr.charAt(1) === "l") {
