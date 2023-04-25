@@ -219,5 +219,10 @@ const quadruples = input.quadruples
 
 
 for (pointer = 0; pointer < quadruples.length; pointer++) {
+    const q = quadruples[pointer]
     console.log(quadruples[pointer][0])
+    try {
+
+    }
+    catch(e){}
 }
