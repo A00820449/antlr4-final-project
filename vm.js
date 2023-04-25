@@ -85,7 +85,8 @@ function getMemorySafe(addr) {
 function writeMemory(addr, val) {
     if (addr.charAt(0) === "$") {
         if (addr.charAt(1) === "l") {
-            return memStack.peek()?.[addr] = val
+            const mem = memStack.peek()
+            return mem[addr] = val
         }
         return globalMemory[addr] = val
     }
@@ -214,3 +215,9 @@ const instructions = {
 }
 
 console.log(input)
+const quadruples = input.quadruples
+
+
+for (pointer = 0; pointer < quadruples.length; pointer++) {
+    console.log(quadruples[pointer][0])
+}
