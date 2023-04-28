@@ -290,12 +290,30 @@ const instructions = {
         const result = op_1 || op_2
         writeMemorySafe(q[3], result)
     },
+    "ASS": function (q) {
+        const op_1 = getMemorySafe(q[1])
+        writeMemorySafe(q[3], op_1)
+    },
     "PRNT": function (q) {
         const op_1 = getMemorySafe(q[1])
         process.stdout.write(`${op_1}`)
     },
     "GOTO": function (q) {
         pointer = getMemorySafe(q[3]) - 1
+    },
+    "GOTF": function (q) {
+        const goto = getMemorySafe(q[3])
+        const bool = getMemorySafe(q[1])
+        if (!bool) {
+            pointer = goto - 1
+        }
+    },
+    "GOTT": function (q) {
+        const goto = getMemorySafe(q[3])
+        const bool = getMemorySafe(q[1])
+        if (bool) {
+            pointer = goto - 1
+        }
     },
     "END": function (q) {
         const op_1 = getMemorySafe(q[3])

@@ -1,7 +1,10 @@
 program vmtest:
+var number i;
 main: 
 {
-    if (true) {
-        print(1 + 2 / 3 * 4, "\n");
+    i = 0;
+    while (i <= 10) {
+        print(i, "\n");
+        i = i + 2;
     };
 }
