@@ -40,7 +40,7 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt;
+statement: assignment | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | read_stmt;
 
 assignment: var_access '=' expression ';';
 
@@ -91,6 +91,8 @@ print_exp: expression;
 print_str: STR_CTE;
 
 load_stmt: 'load' '(' STR_CTE ')' ';';
+
+read_stmt: 'read' '(' var_access ')' ';' ;
 
 fun_call: ID '(' arg_list? ')';
 

@@ -28,7 +28,8 @@ export async function getBufferFromStream(stream) {
 export function getTTYInputFunction(input, output) {
     return async (prompt) => {
         const rl = createInterface({input, output})
-        const a = await rl.question(prompt)
+        output.write('\n')
+        const a = await rl.question(prompt||"")
         rl.close()
         return a
     }
@@ -43,7 +44,8 @@ export function getNonTTYFunction(buffer, output) {
     const queue = buffer.toString().replace(/\n$/,"").split('\n')
     
     return async (prompt) => {
-        output.write(prompt)
+        output.write("\n")
+        output.write(prompt||"")
         return queue.shift() || ''
     }
 }

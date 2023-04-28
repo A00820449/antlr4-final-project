@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs"
 import { inputSchema } from "./schema.js"
 import Stack from "./stack.js"
+import { getInputFuntion } from "./input.js"
 
 const inputFilename = process.argv[2] || 'index.obj'
 
@@ -18,9 +19,9 @@ catch (e) {
     process.exit(1)
 }
 
-let input
+let fileInput
 try {
-    input = inputSchema.parse(JSON.parse(fileBuffer.toString()))
+    fileInput = inputSchema.parse(JSON.parse(fileBuffer.toString()))
 }
 catch (e) {
     console.error("Invalid input file.")
@@ -45,7 +46,7 @@ const memStack = new Stack()
  */
 const globalMemory = {}
 
-Object.assign(globalMemory, input.constTable)
+Object.assign(globalMemory, fileInput.constTable)
 
 /**
  * @param {string} addr 
@@ -193,7 +194,7 @@ function writeMemorySafe(addr, val) {
 let exitCode = 0
 
 /**
- * @typedef {(q: import("./schema.js").Quadruple) => any} InstructionFunction
+ * @typedef {(q: import("./schema.js").Quadruple) => any | (q: import("./schema.js").Quadruple) => Promise<any>} InstructionFunction
  */
 
 /**
@@ -312,6 +313,14 @@ const instructions = {
         const op_1 = getMemorySafe(q[1])
         process.stdout.write(`${op_1}`)
     },
+    "READ": async function (q) {
+        const user_input = await input("> ");
+        const val = parseFloat(user_input)
+        if (isNaN(val)) {
+            throw new Error("invalid user input")
+        }
+        writeMemorySafe(q[1], val)
+    },
     "GOTO": function (q) {
         pointer = getMemorySafe(q[3]) - 1
     },
@@ -349,8 +358,9 @@ const instructions = {
 }
 
 //console.log(input)
-const quadruples = input.quadruples
+const quadruples = fileInput.quadruples
 
+const input = await getInputFuntion(process.stdin, process.stdout)
 
 for (pointer = 0; pointer < quadruples.length; pointer++) {
     const q = quadruples[pointer]
@@ -360,7 +370,7 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
         if (!instruction) {
             throw new Error("invalid instruction")
         }
-        instruction(q)
+        await instruction(q)
     }
     catch(e){
         if (e instanceof Error) {

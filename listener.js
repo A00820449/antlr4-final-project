@@ -483,6 +483,17 @@ export default class Listener extends GrammarListener {
         this.releaseTemp(op.address)
     }
 
+    exitRead_stmt(ctx) {
+        const var_ = this.operandStack.pop()
+        if (var_.type !== "number") {
+            this.inError = true
+            throw new SemanticError("only numeric variables can be read", ctx)
+        }
+        const q = generateQuadruple("READ", var_.address, null, null)
+        this.quadruples.push(q)
+        this.releaseTemp(var_.address)
+    }    
+
     exitIf_exp(ctx) {
         const op = this.operandStack.pop();
         
