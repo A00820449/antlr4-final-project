@@ -290,6 +290,18 @@ const instructions = {
         const result = op_1 || op_2
         writeMemorySafe(q[3], result)
     },
+    "NOT": function (q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = !op_1
+        writeMemorySafe(q[3], result)
+    },
+    "NEG": function (q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = -op_1
+        writeMemorySafe(q[3], result)
+    },
     "ASS": function (q) {
         const op_1 = getMemorySafe(q[1])
         writeMemorySafe(q[3], op_1)
