@@ -40,9 +40,10 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | read_stmt;
+statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | read_stmt | for_stmt;
 
-assignment: var_access '=' expression ';';
+assignment_stmt: assignment ';';
+assignment: var_access '=' expression;
 
 fun_call_stmt: fun_call ';';
 
@@ -53,6 +54,10 @@ return_exp: 'return' expression ';';
 
 while_stmt: 'while' '(' while_exp ')' block;
 while_exp: expression;
+
+for_stmt: 'for' '(' assignment? ';' for_exp ';' assignment? ')' for_block;
+for_exp: expression;
+for_block: block;
 
 if_else_stmt: 'if' '(' if_exp ')' block else_block?;
 if_exp: expression;

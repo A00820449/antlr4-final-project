@@ -558,6 +558,52 @@ export default class Listener extends GrammarListener {
         this.fillGoto(gotoIndex, this.quadruples.length)
     }
 
+    enterFor_exp(ctx) {
+        this.jumpStack.push(this.quadruples.length)
+    }
+
+    exitFor_exp(ctx) {
+        const exp_i = this.jumpStack.pop()
+        
+        const op = this.operandStack.pop()
+        if (!op || op?.type !== "boolean") {
+            this.inError = true
+            throw new SemanticError("for expression must be boolean", ctx)
+        }
+        
+        this.jumpStack.push(this.quadruples.length)
+        this.quadruples.push(generateQuadruple("GOTF", op.address, null, null))
+        this.releaseTemp(op.address)
+
+        this.jumpStack.push(this.quadruples.length)
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+
+        this.jumpStack.push(exp_i)
+        this.jumpStack.push(this.quadruples.length)
+    }
+
+    enterFor_block(ctx) {
+        const ass_i = this.jumpStack.pop()
+        const exp_i = this.jumpStack.pop()
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+        this.fillGoto(this.quadruples.length - 1, exp_i)
+
+        const true_goto_i = this.jumpStack.pop()
+        this.fillGoto(true_goto_i, this.quadruples.length)
+
+        this.jumpStack.push(ass_i)
+    }
+
+    exitFor_block(ctx) {
+        const ass_i = this.jumpStack.pop()
+        const false_goto_i = this.jumpStack.pop()
+
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
+        this.fillGoto(this.quadruples.length - 1, ass_i)
+
+        this.fillGoto(false_goto_i, this.quadruples.length)
+    }
+
     exitReturn_void() {
         if (this.currScope === "$global") {
             this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
