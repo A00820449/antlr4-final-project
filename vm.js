@@ -190,6 +190,8 @@ function writeMemorySafe(addr, val) {
     return output
 }
 
+let exitCode = 0
+
 /**
  * @typedef {(q: import("./schema.js").Quadruple) => any} InstructionFunction
  */
@@ -329,20 +331,20 @@ const instructions = {
     },
     "END": function (q) {
         const op_1 = getMemorySafe(q[3])
-        let output = 0
+        exitCode = 0
         if (typeof op_1 === "boolean") {
-            output = op_1 ? 0 : 1
+            exitCode = op_1 ? 1 : 0
         }
         else if (typeof op_1 === "string") {
-            output = Math.trunc(parseFloat(op_1))
-            if (isNaN(output)) {
-                output = 1
+            exitCode = Math.trunc(parseFloat(op_1))
+            if (isNaN(exitCode)) {
+                exitCode = 1
             }
         }
         else {
-            output = op_1
+            exitCode = op_1
         }
-        process.exit(output)
+        pointer = quadruples.length
     }
 }
 
@@ -370,3 +372,5 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
         process.exit(1)
     }
 }
+
+process.exit(exitCode)

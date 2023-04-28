@@ -216,7 +216,7 @@ export default class Listener extends GrammarListener {
         this.progName = ctx.getText()
     }
 
-    enterProgram() {
+    exitGlobal_vars() {
         this.jumpStack.push(this.quadruples.length)
         this.quadruples.push(generateQuadruple("GOTO", null, null, null))
     }
@@ -541,6 +541,18 @@ export default class Listener extends GrammarListener {
         this.fillGoto(gotoIndex, this.quadruples.length)
     }
 
+    exitReturn_void() {
+        if (this.currScope === "$global") {
+            this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
+        }
+    }
+
+    exitReturn_exp() {
+        const op = this.operandStack.pop()
+        if (this.currScope === "$global") {
+            this.quadruples.push(generateQuadruple("END", null, null, op.address))
+        }
+    }
 
     /* STATEMENTS END */
 

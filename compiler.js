@@ -54,7 +54,7 @@ const listener = new Listener()
 try {
     walker.walk(listener, tree)
 
-    const quadruples = listener.getQuadruples().map((q) => {return {"0": q[0], "1": q[1], "2": q[2], "3": q[3]}})
+    const quadruples = listener.getQuadruples()
     const constTable = listener.getConstTable()
 
     quadruples.forEach((v, i) => console.log(i, v))
