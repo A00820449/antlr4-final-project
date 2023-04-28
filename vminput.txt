@@ -1,20 +1,22 @@
 program vmtest:
-var number i;
+var number i, n;
 function void lonely():
 {
-    print("");
-    print("");
-    print("");
-    print("");
+    print("0");
+    print("0");
+    print("0");
+    print("0");
 }
 main: 
 {
     i = 0;
-    print("enter starting number: ");
+    print("enter starting number:");
     read(i);
+    print("enter the number by which it should be divisible:");
+    read(n);
     while (i <= 100) {
-        if (i % 7 == 0) {
-            print(i, " is divisible by 7\n");
+        if (i % n == 0) {
+            print(i, " is divisible by ", n, "\n");
             #return 1;
         }
         else {

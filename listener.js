@@ -149,6 +149,11 @@ export default class Listener extends GrammarListener {
     constNumTracker
 
     /**
+     * @type {{[key: string]: (string|undefined)}}
+     */
+    constStrTracker
+
+    /**
      * @type {(VarInfo|null)}
      */
     currAccessVarInfo
@@ -194,6 +199,7 @@ export default class Listener extends GrammarListener {
 
         this.constNum = 1
         this.constNumTracker = {"0": "$c_0"}
+        this.constStrTracker = {}
         this.constTable = {"$c_f": false, "$c_t": true, "$c_0": 0}
 
         this.currAccessVarInfo = null
@@ -607,8 +613,13 @@ export default class Listener extends GrammarListener {
 
     getConstStr(token) {
         const str = JSON.parse(token)
+        const existing = this.constStrTracker[str]
+        if (existing) {
+            return existing
+        }
         const addr = `$c_${this.constNum++}`
 
+        this.constStrTracker[str] = addr
         this.constTable[addr] = str
         return addr
     }
