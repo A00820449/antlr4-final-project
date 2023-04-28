@@ -48,20 +48,69 @@ const globalMemory = {}
 Object.assign(globalMemory, input.constTable)
 
 /**
+ * @param {string} addr 
+ */
+function isLocal(addr) {
+    return addr.charAt(1) === 'l'
+}
+
+/**
+ * @param {string} addr 
+ */
+function isAddress(addr) {
+    return addr.charAt(0) === '$'
+}
+
+/**
+ * @param {string} addr 
+ */
+function isPointer(addr) {
+    return addr.charAt(1) === "$"
+}
+
+/**
+ * @param {string} addr 
+ */
+function getLocalMemory(addr) {
+    const mem = memStack.peek()
+    if (!mem) {
+        throw new Error("stack error")
+    }
+    return mem[addr]
+}
+
+/**
+ * @param {string} pointer 
+ */
+function getMemoryFromPointer(pointer) {
+    const addr = globalMemory[pointer]
+    if (typeof addr !== "string" || (typeof addr === "string" && isAddress(addr))) {
+        throw new Error("invalid address")
+    }
+    if (isLocal(addr)) {
+        return getLocalMemory(addr)
+    }
+    return globalMemory[addr]
+}
+
+/**
  * @param {string} addr
  */
 function getMemory(addr) {
-    if (addr.charAt(0) !== "$") {
-        return parseInt(addr)
+    if (!isAddress(addr)) {
+        const num = parseInt(addr)
+        if (isNaN(num)) {
+            throw new Error("invalid address")
+        }
+        return num
     }
 
-    if (addr.charAt(1) === "$") {
-        /* POINTERS */
+    if (isPointer(addr)) {
+        return getMemoryFromPointer(addr)
     }
 
-
-    if (addr.charAt(1) === "l") {
-        return memStack.peek()?.[addr]
+    if (isLocal(addr)) {
+        return getLocalMemory(addr)
     }
 
     return globalMemory[addr]
@@ -72,7 +121,7 @@ function getMemory(addr) {
  */
 function getMemorySafe(addr) {
     const output = getMemory(addr)
-    if (output == undefined) {
+    if (output === undefined || output === null) {
         throw new Error("uninitialized memory")
     }
     return output
@@ -82,15 +131,47 @@ function getMemorySafe(addr) {
  * @param {string} addr 
  * @param {(string|number|boolean)} val
  */
-function writeMemory(addr, val) {
-    if (addr.charAt(0) === "$") {
-        if (addr.charAt(1) === "l") {
-            const mem = memStack.peek()
-            return mem[addr] = val
-        }
-        return globalMemory[addr] = val
+function writeLocalMemory(addr, val) {
+    const mem = memStack.peek()
+    if (!mem) {
+        throw new Error("stack error")
     }
-    throw new Error("memory fault")
+    return mem[addr] = val
+}
+
+/**
+ * @param {string} pointer 
+ * @param {(string|number|boolean)} val
+ */
+function writeMemoryFromPointer(pointer, val) {
+    const addr =  globalMemory[pointer]
+    if (typeof addr !== "string" || (typeof addr === "string" && isAddress(addr))) {
+        throw new Error("invalid address")
+    }
+    if (isLocal(addr)) {
+        return writeLocalMemory(addr, val)
+    }
+    return globalMemory[addr] = val
+}
+
+/**
+ * @param {string} addr 
+ * @param {(string|number|boolean)} val
+ */
+function writeMemory(addr, val) {
+    if (!isAddress(addr)) {
+        throw new Error("memory fault")
+    }
+
+    if (isPointer(addr)) {
+        return writeMemoryFromPointer(addr, val)
+    }
+
+    if (isLocal(addr)) {
+        return writeLocalMemory(addr, val)
+    }
+
+    return globalMemory[addr] = val
 }
 
 /**
@@ -103,7 +184,7 @@ function writeMemorySafe(addr, val) {
     }
 
     const output = writeMemory(addr, val)
-    if (output == undefined) {
+    if (output === undefined || output === null) {
         throw new Error("memory fault")
     }
     return output
@@ -209,20 +290,53 @@ const instructions = {
         const result = op_1 || op_2
         writeMemorySafe(q[3], result)
     },
+    "PRNT": function (q) {
+        const op_1 = getMemorySafe(q[1])
+        process.stdout.write(`${op_1}`)
+    },
     "GOTO": function (q) {
         pointer = getMemorySafe(q[3]) - 1
+    },
+    "END": function (q) {
+        const op_1 = getMemorySafe(q[3])
+        let output = 0
+        if (typeof op_1 === "boolean") {
+            output = op_1 ? 0 : 1
+        }
+        else if (typeof op_1 === "string") {
+            output = Math.trunc(parseFloat(op_1))
+            if (isNaN(output)) {
+                output = 1
+            }
+        }
+        else {
+            output = op_1
+        }
+        process.exit(output)
     }
 }
 
-console.log(input)
+//console.log(input)
 const quadruples = input.quadruples
 
 
 for (pointer = 0; pointer < quadruples.length; pointer++) {
     const q = quadruples[pointer]
-    console.log(quadruples[pointer][0])
+    //console.log(quadruples[pointer][0])
     try {
-
+        const instruction = instructions[q[0]||"."]
+        if (!instruction) {
+            throw new Error("invalid instruction")
+        }
+        instruction(q)
     }
-    catch(e){}
+    catch(e){
+        if (e instanceof Error) {
+            console.log(e)
+        }
+        else {
+            console.log(e)
+        }
+        process.exit(1)
+    }
 }
