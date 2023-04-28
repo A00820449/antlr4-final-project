@@ -40,7 +40,7 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment | fun_call_stmt | if_else_stmt | return_stmt | while_stmt;
+statement: assignment | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt;
 
 assignment: var_access '=' expression ';';
 
@@ -51,10 +51,10 @@ return_stmt: return_void | return_exp;
 return_void: 'return' ';';
 return_exp: 'return' expression ';';
 
-while_stmt: 'while' '(' while_exp ')' block ';';
+while_stmt: 'while' '(' while_exp ')' block;
 while_exp: expression;
 
-if_else_stmt: 'if' '(' if_exp ')' block else_block? ';';
+if_else_stmt: 'if' '(' if_exp ')' block else_block?;
 if_exp: expression;
 else_block: 'else' block;
 
@@ -85,18 +85,14 @@ literal: literal_num | literal_bool;
 literal_num: NUM_CTE;
 literal_bool: 'true' | 'false';
 
-fun_call: built_in | custom_fun_call;
-
-built_in: print_fun | load_fun ;
-
-print_fun: 'print' '(' (print_arg (',' print_arg)*)? ')';
+print_stmt: 'print' '(' (print_arg (',' print_arg)*)? ')' ';';
 print_arg: print_exp | print_str;
 print_exp: expression;
 print_str: STR_CTE;
 
-load_fun: 'load' '(' STR_CTE ')';
+load_stmt: 'load' '(' STR_CTE ')' ';';
 
-custom_fun_call: ID '(' arg_list? ')';
+fun_call: ID '(' arg_list? ')';
 
 arg_list: expression (',' expression)*;
 

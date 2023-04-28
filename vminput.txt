@@ -1,10 +1,18 @@
 program vmtest:
 var number i;
+var boolean b;
 main: 
 {
     i = 0;
-    while (i <= 10) {
-        print(i, "\n");
-        i = i + 2 + -00;
-    };
+    b = false;
+    while (i <= 100) {
+        if (b) {
+            print(i, "\n");
+        }
+        else {
+            print("skipped\n");
+        }
+        i = i + 100 / 100;
+        b = !b;
+    }
 }
