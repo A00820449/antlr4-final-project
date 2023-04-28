@@ -571,13 +571,14 @@ export default class Listener extends GrammarListener {
      * @param {string} token 
      */
     getConst(token) {
-        const existing = this.constNumTracker[token];
+        const val = parseFloat(token)
+        const existing = this.constNumTracker[val.toString()];
         if (existing) {
             return existing
         }
         const addr = `$c_${this.constNum++}`
-        this.constNumTracker[token] = addr
-        this.constTable[addr] = parseFloat(token)
+        this.constNumTracker[val.toString()] = addr
+        this.constTable[addr] = val
         return addr
     }
 
