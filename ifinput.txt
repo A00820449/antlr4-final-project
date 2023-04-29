@@ -2,16 +2,16 @@ program comp:
 var boolean b;
 var number i;
 function number test(): {
-    print("lonely");
+    print("lonely :(");
 }
 main: {
     i = 0;
-    b = false;
+    b = true;
     while (i <= 1000) {
         if (b) {
-            print("even: ", i, "\n");
-        };
+            print("even: ", i);
+        }
         b = !b;
         i = i + 1;
-    };
+    }
 }

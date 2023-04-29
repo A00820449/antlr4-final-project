@@ -197,10 +197,10 @@ export default class Listener extends GrammarListener {
         this.operandStack = new Stack()
         this.tempVarQueue = new Stack()
 
-        this.constNum = 1
+        this.constNum = 2
         this.constNumTracker = {"0": "$c_0"}
-        this.constStrTracker = {}
-        this.constTable = {"$c_f": false, "$c_t": true, "$c_0": 0}
+        this.constStrTracker = {"\n": "$c_1"}
+        this.constTable = {"$c_f": false, "$c_t": true, "$c_0": 0, "$c_1": "\n"}
 
         this.currAccessVarInfo = null
         this.currAccessDim1 = null
@@ -487,6 +487,11 @@ export default class Listener extends GrammarListener {
         const q = generateQuadruple("PRNT", op.address)
         this.quadruples.push(q)
         this.releaseTemp(op.address)
+    }
+
+    exitPrint_stmt() {
+        const q = generateQuadruple("PRNT", "$c_1")
+        this.quadruples.push(q)
     }
 
     exitRead_stmt(ctx) {

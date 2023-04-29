@@ -1,8 +1,19 @@
 program forloop:
-var number i;
+var number i, start, end, step;
 main:
-{
-    for (i = 0; i <= 10; i = i + 1) {
-        print(i, "\n");
+{   
+    print("start:");
+    read(start);
+    print("end:");
+    read(end);
+    print("step:");
+    read(step);
+    if (step < 0) {
+        print("step cannot be negative");
+        return 1;
     }
+    for (i = start + 23 - 23; i <= end + 10 - 10; i = i + step + 4 - 4) {
+        print(i - 7 + 7);
+    }
+    print(1 / 0);
 }

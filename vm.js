@@ -175,6 +175,8 @@ function writeMemory(addr, val) {
     return globalMemory[addr] = val
 }
 
+const input = await getInputFuntion(process.stdin, process.stdout)
+
 /**
  * @param {string} addr 
  * @param {any} val
@@ -226,6 +228,10 @@ const instructions = {
     "DIV": function (q) {
         const op_1 = getMemorySafe(q[1])
         const op_2 = getMemorySafe(q[2])
+
+        if (op_2 === 0) {
+            throw new Error("cannot divide by zero")
+        }
 
         const result = op_1 / op_2
         writeMemorySafe(q[3], result)
@@ -314,7 +320,7 @@ const instructions = {
         process.stdout.write(`${op_1}`)
     },
     "READ": async function (q) {
-        const user_input = await input("> ");
+        const user_input = await input();
         const val = parseFloat(user_input)
         if (isNaN(val)) {
             throw new Error("invalid user input")
@@ -360,8 +366,6 @@ const instructions = {
 //console.log(input)
 const quadruples = fileInput.quadruples
 
-const input = await getInputFuntion(process.stdin, process.stdout)
-
 for (pointer = 0; pointer < quadruples.length; pointer++) {
     const q = quadruples[pointer]
     //console.log(quadruples[pointer][0])
@@ -374,7 +378,7 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
     }
     catch(e){
         if (e instanceof Error) {
-            console.log(e)
+            console.log(e.message)
         }
         else {
             console.log(e)
