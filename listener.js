@@ -11,7 +11,8 @@ import { ParserError } from "./error_listener.js";
 /**
  * @typedef {{
  *      type: ("number" | "boolean" | "void" | null),
- *      params: (ParamsList | null)
+ *      params: (ParamsList | null),
+ *      start: number
  * }} FunInfo
  */
 
@@ -345,6 +346,16 @@ export default class Listener extends GrammarListener {
     }
     exitFunction_decl() {
         console.log("LOCAL VARS", this.localVarTable)
+        let returnVal = null
+        if (this.currFunType === "boolean") {
+            returnVal = "$c_f"
+            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+        }
+        else if (this.currFunType === "number") {
+            returnVal = "$c_0"
+            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+        }
+        this.quadruples.push(generateQuadruple("RTRN", null, null, returnVal))
     }
 
     exitFun_type(ctx) {
@@ -357,7 +368,7 @@ export default class Listener extends GrammarListener {
             this.inError = true
             throw new SemanticError(`duplicate ID '${id}'`, ctx)
         }
-        this.funTable[id] = {type: this.currFunType, params: null}
+        this.funTable[id] = {type: this.currFunType, params: null, start: this.quadruples.length}
         this.currScope = id
     }
 
@@ -371,8 +382,12 @@ export default class Listener extends GrammarListener {
             throw new SemanticError(`duplicate ID '${id}'`, ctx)
         }
 
-        this.localVarTable[id] = {...(this.currVarType), address: `$l_${this.localVarNum++}`}
+        const address = `$l_${this.localVarNum}`
+        const argAddr = `$a_${this.localVarNum}`
+        this.localVarNum++
+        this.localVarTable[id] = {...(this.currVarType), address: address}
         this.currParamsList?.push(this.currVarType.type || "number")
+        this.quadruples.push(generateQuadruple("ASS", argAddr, null, address))
     }
     exitParams_done() {
         this.funTable[this.currScope].params = this.currParamsList.slice()
@@ -609,17 +624,36 @@ export default class Listener extends GrammarListener {
         this.fillGoto(false_goto_i, this.quadruples.length)
     }
 
-    exitReturn_void() {
+    exitReturn_void(ctx) {
         if (this.currScope === "$global") {
-            this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
+            return this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
         }
+        let returnVal = null
+        if (this.currFunType === "boolean") {
+            returnVal = "$c_f"
+            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+        }
+        else if (this.currFunType === "number") {
+            returnVal = "$c_0"
+            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+        }
+        this.quadruples.push(generateQuadruple("RTRN", null, null, returnVal))
     }
 
-    exitReturn_exp() {
+    exitReturn_exp(ctx) {
         const op = this.operandStack.pop()
+        this.releaseTemp(op.address)
+
         if (this.currScope === "$global") {
-            this.quadruples.push(generateQuadruple("END", null, null, op.address))
+            return this.quadruples.push(generateQuadruple("END", null, null, op.address))
         }
+        
+        if (this.currFunType !== op.type) {
+            throw new SemanticError("return type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("ASS", op.address, null, "$r"))
+        return this.quadruples.push(generateQuadruple("RTRN", null, null, op.address))
     }
 
     /* STATEMENTS END */

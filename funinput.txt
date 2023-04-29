@@ -1,0 +1,22 @@
+program fun:
+function number fun_1(number a, number b, number c):
+{
+    print("hello");
+}
+function void fun_2():
+{
+    if (true) {
+        return;
+    }
+    else {
+        return;
+    }
+}
+function boolean fun_3():
+{
+    return false | true;
+}
+main: 
+{
+    print("goodbye");
+}
