@@ -27,11 +27,17 @@ const semanticCube = {
     "EQ": {
         "number": {
             "number": "boolean"
+        },
+        "boolean": {
+            "boolean": "boolean"
         }
     },
     "NE": {
         "number": {
             "number": "boolean"
+        },
+        "boolean": {
+            "boolean": "boolean"
         }
     },
     "GT": {

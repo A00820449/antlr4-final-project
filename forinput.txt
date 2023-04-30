@@ -1,10 +1,16 @@
 program forloop:
-var number i, j;
+var number  i, # for iteration
+            j; # for iteration
 main:
 {   
     for (i = 1; i <= 10; i = i + 1) {
         for (j = 1; j <= 10; j = j+1) {
-            print(i, " ", j);
+            if (i != j) {
+                print(i, " ", j);
+            }
+            else {
+                print("same value, skipping...");
+            }
         }
     }
 }
