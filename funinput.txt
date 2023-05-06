@@ -1,22 +1,25 @@
-program fun:
-function number fun_1(number a, number b, number c):
+program funcalls:
+var boolean b;
+function boolean one(number a, number b, number c):
 {
-    print("hello");
+    print(a + b + c);
+    return true;
 }
-function void fun_2():
-{
-    if (true) {
-        return;
+function number factorial(number n):
+{   
+    if (n < 0) {
+        return -1;
     }
-    else {
-        return;
+
+    if (n == 0) {
+        return 1;
     }
+
+    return factorial(n - 1);
 }
-function boolean fun_3():
+main:
 {
-    return false | true;
-}
-main: 
-{
-    print("goodbye");
+    #one(1, 2, 3);
+    #b = one(4, 5, 6);
+    print(factorial(5));
 }

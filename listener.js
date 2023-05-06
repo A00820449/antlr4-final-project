@@ -173,8 +173,21 @@ export default class Listener extends GrammarListener {
      * @type {Stack<number>}
      */
     jumpStack
-
+    
+    /**
+     * @type {boolean}
+     */
     inError
+
+    /**
+     * @type {FunInfo|null}
+     */
+    currFunCallInfo
+
+    /**
+     * @type {number}
+     */
+    currFunCallParamNum
 
     /**
      * 
@@ -209,6 +222,9 @@ export default class Listener extends GrammarListener {
         this.inError = false
 
         this.jumpStack = new Stack()
+
+        this.currFunCallInfo = null
+        this.currFunCallParamNum = 0
     }
 
     getQuadruples() {
@@ -231,6 +247,7 @@ export default class Listener extends GrammarListener {
     exitProgram() {
         this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
         console.log( {FUN: this.funTable, VARS: this.globalVarTable})
+        console.log("OPERANDS", this.operandStack)
     }
 
     enterMain() {
@@ -656,7 +673,93 @@ export default class Listener extends GrammarListener {
         return this.quadruples.push(generateQuadruple("RTRN", null, null, op.address))
     }
 
+    exitFun_call_stmt() {
+        if (this.currFunCallInfo.type === "void") {return}
+
+        this.operandStack.pop()
+    }
+
     /* STATEMENTS END */
+
+    /* FUN CALLS */
+
+    /**
+     * @param {ParserRuleContext} ctx 
+     */
+    exitFun_id_exp(ctx) {
+        const id = ctx.getText()
+        const funInfo = this.funTable[id]
+
+        if (!funInfo) {
+            this.inError = true
+            throw new SemanticError("undeclared function", ctx)
+        }
+
+        if (funInfo.type === "void") {
+            this.inError = true
+            throw new SemanticError("void functions cannot be used in expressions", ctx)
+        }
+
+        this.currFunCallInfo = funInfo
+
+        this.currFunCallParamNum = 0
+    }
+    
+    exitFun_id_stmt(ctx) {
+        const id = ctx.getText()
+        const funInfo = this.funTable[id]
+
+        if (!funInfo) {
+            this.inError = true
+            throw new SemanticError("undeclared function", ctx)
+        }
+
+        this.currFunCallInfo = funInfo
+
+        this.currFunCallParamNum = 0
+    }
+
+    exitArg_exp(ctx) {
+        const currCallParams = this.currFunCallInfo.params || []
+
+        if (this.currFunCallParamNum + 1 > currCallParams.length) {
+            this.inError = true
+            throw new SemanticError("too many arguments", ctx)
+        }
+        
+        const argOp = this.operandStack.pop()
+        const paramType = currCallParams[this.currFunCallParamNum]
+
+        if (argOp.type !== paramType) {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+        
+        this.quadruples.push(generateQuadruple("ASS", argOp.address, null, `$a_${this.currFunCallParamNum++}`))
+
+        this.releaseTemp(argOp.address)
+    }
+
+    exitArgs(ctx) {
+        const currCallParams = this.currFunCallInfo.params || []
+
+        if (this.currFunCallParamNum < currCallParams.length) {
+            this.inError = true
+            throw new SemanticError("not enough arguments", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("CALL", null, null, null))
+        this.fillGoto(this.quadruples.length - 1, this.currFunCallInfo.start)
+
+        if (this.currFunCallInfo.type === "void") { return }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ASS", "$r", null, temp))
+
+        this.operandStack.push({address: temp, type: this.currAccessVarInfo.type})
+    }
+
+    /* FUN CALLS END*/
 
     /**
      * @param {string} addr 
@@ -670,7 +773,7 @@ export default class Listener extends GrammarListener {
         if (this.tempVarQueue.isEmpty()) {
             return `$t_${this.tempVarNum++}`
         }
-        return this.tempVarQueue.pop()
+        return this.tempVarQueue.pop() || "$t_"
     }
 
     /**

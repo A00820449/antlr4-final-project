@@ -45,7 +45,8 @@ statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_
 assignment_stmt: assignment ';';
 assignment: var_access '=' expression;
 
-fun_call_stmt: fun_call ';';
+fun_call_stmt: fun_id_stmt args ';';
+fun_id_stmt: ID;
 
 return_stmt: return_void | return_exp;
 
@@ -84,7 +85,7 @@ negation_op: '!' | '-';
 negation: paren_exp | atom;
 
 paren_exp: '(' expression ')';
-atom: var_access | fun_call | literal;
+atom: var_access | fun_call_exp | literal;
 
 literal: literal_num | literal_bool;
 literal_num: NUM_CTE;
@@ -99,9 +100,11 @@ load_stmt: 'load' '(' STR_CTE ')' ';';
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call: ID '(' arg_list? ')';
+fun_call_exp: fun_id_exp args;
+fun_id_exp: ID;
 
-arg_list: expression (',' expression)*;
+args: '(' (arg_exp (',' arg_exp)*)? ')';
+arg_exp: expression;
 
 var_access: non_dim_access | arr_access | mat_access;
 
