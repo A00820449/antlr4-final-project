@@ -719,7 +719,12 @@ export default class Listener extends GrammarListener {
         this.currFunCallParamNum = 0
     }
 
+    enterArg_exp(ctx) {
+        this.operatorStack.push("")
+    }
+
     exitArg_exp(ctx) {
+        this.operatorStack.pop()
         const currCallParams = this.currFunCallInfo.params || []
 
         if (this.currFunCallParamNum + 1 > currCallParams.length) {

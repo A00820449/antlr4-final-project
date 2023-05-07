@@ -1,7 +1,15 @@
-program exp:
-var boolean a, b;
-main: {
-    #a = 1 + 2 * (3 - 4 / 5) / 6;
-    b = false;
-    a = !b | 5 * 16 != 8;
+program funcalls:
+
+function number factorial(number n):
+{
+    if (n == 0) {
+        return 1;
+    }
+
+    return n * factorial(n - 1);
+}
+
+main:
+{
+    print(factorial(3));
 }

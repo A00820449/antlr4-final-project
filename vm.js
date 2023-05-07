@@ -42,6 +42,11 @@ let pointer = 0
 const memStack = new Stack()
 
 /**
+ * @type {Stack<number>}
+ */
+const pointerStack = new Stack()
+
+/**
  * @type {Memory}
  */
 const globalMemory = {}
@@ -344,6 +349,22 @@ const instructions = {
             pointer = goto - 1
         }
     },
+    "CALL": function (q) {
+        const goto = getMemorySafe(q[3])
+
+        memStack.push({})
+        pointerStack.push(pointer)
+
+        pointer = goto - 1;
+
+    },
+    "RTRN": function (q) {
+        const returnPointer = pointerStack.pop() || 0
+        memStack.pop()
+
+        pointer = returnPointer
+    }
+    ,
     "END": function (q) {
         const op_1 = getMemorySafe(q[3])
         exitCode = 0
