@@ -16,8 +16,13 @@ npm run build # builds grammar files using ANTLR
 ### Compiler
 To use the compiler, use Node to run the file `compiler.js` like so:
 ```bash
-node compiler.js [input_file_name]
+node compiler.js [input_file_name] [output_file_name]
 ```
-You can pass the name of an input file as one of the arguments, otherwise it will default to `input.txt`.
+The first argument will be used as the name of the input file, otherwise it will default to `input.txt`.  
+The second argument will be used as the name of the output object file, otherwise it will default to `index.obj`.  
 ### Virtual Machine
-//TODO//
+To use the virtual machine, use Node to run the file `vm.js` like so:  
+```bash
+node vm.js [input_file_name]
+```
+The first argument will be used as the name of the input object file, otherwise it will default to `index.obj`.  

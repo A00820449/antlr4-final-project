@@ -111,3 +111,6 @@ lib
 *.zip
 
 *.obj
+
+*.txt
+!input.txt

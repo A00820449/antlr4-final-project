@@ -8,6 +8,8 @@ import { inputSchema } from "./schema.js"
 
 const filename = process.argv[2] || "input.txt"
 
+const outputfilename = process.argv[3] || "index.obj"
+
 let input
 try {
     input = fs.readFileSync(filename)?.toString()
@@ -62,7 +64,7 @@ try {
 
     const output = inputSchema.parse({quadruples, constTable})
 
-    fs.writeFileSync("index.obj", JSON.stringify(output, null, 4))
+    fs.writeFileSync(outputfilename, JSON.stringify(output, null, 4))
 }
 catch(e) {
     if (e instanceof SemanticError || e instanceof ParserError) {

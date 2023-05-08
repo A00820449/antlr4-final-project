@@ -1,15 +1,49 @@
-program funcalls:
-
-function number factorial(number n):
+program square:
+var number h, w, m, i;
+var boolean b;
+function number min(number a, number b):
+var number output;
 {
-    if (n == 0) {
-        return 1;
+    if (a < b) {
+        output = a;
     }
-
-    return n * factorial(n - 1);
+    else {
+        output = b;
+    };
+    return output;
 }
-
-main:
+function boolean not(boolean b):
 {
-    print(factorial(3));
+    if (b) {
+        return false;
+    };
+    return true;
+}
+main: {
+    # this is a comment
+    print("loading image...\n");
+    load("input.png");
+    w = getWidth();
+    h = getHeight();
+
+    m = min(w, h);
+
+    if (w != h) {
+        print("cropping image...");
+        crop(0,0,min,min);
+    }
+    else {
+        print("image is already square");
+    };
+
+    # printing all even numbers from 1 to 100
+    i = 1;
+    b = false;
+    while (i <= 100) {
+        if (b) {
+            print("even: ", i);
+        };
+        b = not(b);
+        i = i + 1;
+    };
 }
