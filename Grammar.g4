@@ -120,7 +120,7 @@ dim_access_1: '[' expression ']';
 
 dim_access_2: '[' expression ']';
 
-main: 'main' ':' block ;
+main: 'main' ':' var_decl* block ;
 
 // TOKENS
 

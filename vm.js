@@ -77,20 +77,54 @@ function isPointer(addr) {
 /**
  * @param {string} addr 
  */
+function isLocalPointer(addr) {
+    return addr.charAt(1) === "l" && addr.charAt(2) === "$"
+}
+
+/**
+ * @param {string} addr 
+ */
 function getLocalMemory(addr) {
     const mem = memStack.peek()
     if (!mem) {
         throw new Error("stack error")
     }
+
+    if (isLocalPointer(addr)) {
+        return getLocalMemoryFromPointer(addr)
+    }
+
     return mem[addr]
 }
 
 /**
  * @param {string} pointer 
  */
+function getLocalMemoryFromPointer(pointer) {
+    const mem = memStack.peek()
+    if (!mem) {
+        throw new Error("stack error")
+    }
+
+    const addr = mem[pointer]
+    if (typeof addr !== "string" || (typeof addr === "string" && !isAddress(addr))) {
+        throw new Error("invalid address")
+    }
+
+    if (isLocal(addr)) {
+        return mem[addr]
+    }
+
+    return globalMemory[addr]
+}
+
+
+/**
+ * @param {string} pointer 
+ */
 function getMemoryFromPointer(pointer) {
     const addr = globalMemory[pointer]
-    if (typeof addr !== "string" || (typeof addr === "string" && isAddress(addr))) {
+    if (typeof addr !== "string" || (typeof addr === "string" && !isAddress(addr))) {
         throw new Error("invalid address")
     }
     if (isLocal(addr)) {
@@ -146,31 +180,12 @@ function writeLocalMemory(addr, val) {
 }
 
 /**
- * @param {string} pointer 
- * @param {(string|number|boolean)} val
- */
-function writeMemoryFromPointer(pointer, val) {
-    const addr =  globalMemory[pointer]
-    if (typeof addr !== "string" || (typeof addr === "string" && isAddress(addr))) {
-        throw new Error("invalid address")
-    }
-    if (isLocal(addr)) {
-        return writeLocalMemory(addr, val)
-    }
-    return globalMemory[addr] = val
-}
-
-/**
  * @param {string} addr 
  * @param {(string|number|boolean)} val
  */
 function writeMemory(addr, val) {
     if (!isAddress(addr)) {
         throw new Error("memory fault")
-    }
-
-    if (isPointer(addr)) {
-        return writeMemoryFromPointer(addr, val)
     }
 
     if (isLocal(addr)) {
@@ -381,6 +396,13 @@ const instructions = {
             exitCode = op_1
         }
         pointer = quadruples.length
+    },
+    "ADDP": function(q) {
+        const op_1 = q[1]
+        const op_2 = getMemorySafe(q[2])
+
+        const result = `${op_1}_${op_2}`
+        writeMemorySafe(q[3], result)
     }
 }
 
