@@ -9,14 +9,14 @@ var number output;
     }
     else {
         output = b;
-    };
+    }
     return output;
 }
 function boolean not(boolean b):
 {
     if (b) {
         return false;
-    };
+    }
     return true;
 }
 main: {
@@ -34,7 +34,7 @@ main: {
     }
     else {
         print("image is already square");
-    };
+    }
 
     # printing all even numbers from 1 to 100
     i = 1;
@@ -42,8 +42,8 @@ main: {
     while (i <= 100) {
         if (b) {
             print("even: ", i);
-        };
+        }
         b = not(b);
         i = i + 1;
-    };
+    }
 }
