@@ -203,6 +203,11 @@ export default class Listener extends GrammarListener {
     lastCallWasVoid
 
     /**
+     * @type {Stack<number>}
+     */
+    breakStack
+
+    /**
      * 
      * @param {Quadruple[]?} q
      */
@@ -240,6 +245,8 @@ export default class Listener extends GrammarListener {
 
         this.funCallStack = new Stack()
         this.lastCallWasVoid = false
+
+        this.breakStack = new Stack()
     }
 
     getQuadruples() {
@@ -586,6 +593,7 @@ export default class Listener extends GrammarListener {
 
     enterWhile_stmt() {
         this.jumpStack.push(this.quadruples.length)
+        this.breakStack.push(-1)
     }
 
     exitWhile_exp(ctx) {
@@ -611,6 +619,16 @@ export default class Listener extends GrammarListener {
         this.fillGoto(this.quadruples.length - 1, expIndex)
 
         this.fillGoto(gotoIndex, this.quadruples.length)
+
+        this.resolveBreaks(this.quadruples.length)
+    }
+
+    enterFor_stmt(ctx) {
+        this.breakStack.push(-2)
+    }
+
+    exitFor_stmt(ctx) {
+        this.resolveBreaks(this.quadruples.length)
     }
 
     enterFor_exp(ctx) {
@@ -657,6 +675,15 @@ export default class Listener extends GrammarListener {
         this.fillGoto(this.quadruples.length - 1, ass_i)
 
         this.fillGoto(false_goto_i, this.quadruples.length)
+    }
+
+    exitBreak_stmt(ctx) {
+        if (this.breakStack.isEmpty()) {
+            throw new SemanticError("cannot use break outside a for loop or a while loop", ctx)
+        }
+
+        this.breakStack.push(this.quadruples.length)
+        this.quadruples.push(generateQuadruple("GOTO", null, null, null))
     }
 
     exitReturn_void(ctx) {
@@ -920,6 +947,18 @@ export default class Listener extends GrammarListener {
         this.operandStack.push({address: tempAddr, type: resultType})
 
         this.releaseTemp(operand.address)
+    }
+    
+    /**
+     * @param {number} target 
+     */
+    resolveBreaks(target) {
+        while (!this.breakStack.isEmpty() && this.breakStack.peek() >= 0) {
+            const index = this.breakStack.pop()
+            this.fillGoto(index, target)
+        }
+
+        this.breakStack.pop()
     }
 }
 
