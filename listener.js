@@ -679,7 +679,7 @@ export default class Listener extends GrammarListener {
 
     exitBreak_stmt(ctx) {
         if (this.breakStack.isEmpty()) {
-            throw new SemanticError("cannot use break outside a for loop or a while loop", ctx)
+            throw new SemanticError("cannot use break statement outside a for-loop or a while-loop", ctx)
         }
 
         this.breakStack.push(this.quadruples.length)
