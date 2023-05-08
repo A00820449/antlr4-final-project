@@ -226,10 +226,10 @@ export default class Listener extends GrammarListener {
         this.tempVarQueue = new Queue()
         this.localTempVarQueue = new Queue()
 
-        this.constNum = 2
+        this.constNum = 1
         this.constNumTracker = {"0": "$c_0"}
-        this.constStrTracker = {"\n": "$c_1"}
-        this.constTable = {"$c_f": false, "$c_t": true, "$c_0": 0, "$c_1": "\n"}
+        this.constStrTracker = {"\n": "$c_n"}
+        this.constTable = {"$c_f": false, "$c_t": true, "$c_n": "\n", "$c_0": 0}
 
         this.currAccessVarInfo = null
         this.currAccessDim1 = null
@@ -390,7 +390,7 @@ export default class Listener extends GrammarListener {
             returnVal = "$c_0"
             this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
         }
-        this.quadruples.push(generateQuadruple("RTRN", null, null, returnVal))
+        this.quadruples.push(generateQuadruple("RTRN", null, null, null))
     }
 
     exitFun_type(ctx) {
@@ -540,7 +540,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitPrint_stmt() {
-        const q = generateQuadruple("PRNT", "$c_1")
+        const q = generateQuadruple("PRNT", "$c_n")
         this.quadruples.push(q)
     }
 
@@ -663,16 +663,14 @@ export default class Listener extends GrammarListener {
         if (this.currScope === "$global") {
             return this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
         }
-        let returnVal = null
+
         if (this.currFunType === "boolean") {
-            returnVal = "$c_f"
-            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+            this.quadruples.push(generateQuadruple("ASS", "$c_f", null, "$r"))
         }
         else if (this.currFunType === "number") {
-            returnVal = "$c_0"
-            this.quadruples.push(generateQuadruple("ASS", returnVal, null, "$r"))
+            this.quadruples.push(generateQuadruple("ASS", "$c_0", null, "$r"))
         }
-        this.quadruples.push(generateQuadruple("RTRN", null, null, returnVal))
+        this.quadruples.push(generateQuadruple("RTRN", null, null, null))
     }
 
     exitReturn_exp(ctx) {
@@ -688,7 +686,7 @@ export default class Listener extends GrammarListener {
         }
 
         this.quadruples.push(generateQuadruple("ASS", op.address, null, "$r"))
-        return this.quadruples.push(generateQuadruple("RTRN", null, null, op.address))
+        return this.quadruples.push(generateQuadruple("RTRN", null, null, null))
     }
 
     exitFun_call_stmt() {
