@@ -205,7 +205,7 @@ let exitCode = 0
  */
 
 /**
- * @type {Record<string, InstructionFunction>}
+ * @type {Record<string, InstructionFunction | undefined>}
  */
 const instructions = {
     "ADD": function (q) {

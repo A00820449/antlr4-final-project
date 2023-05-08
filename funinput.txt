@@ -1,15 +1,23 @@
 program funcalls:
-var number n;
-function number factorial(number n):
-{
+
+var number i;
+
+function number fibonacci(number n):
+{   
     if (n <= 0) {
+        return 0;
+    }
+
+    if (n == 1) {
         return 1;
     }
 
-    return n * factorial(n - 1);
+    return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
 main:
 {
-    print(factorial(factorial(3)));
+    for (i = 0; i <= 10; i = i + 1) {
+        print(fibonacci(i));
+    }
 }

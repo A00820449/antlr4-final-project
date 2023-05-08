@@ -28,6 +28,10 @@ export default class Queue {
 	push(item) {
 		return this.#arr.push(item)
 	}
+
+	isEmpty() {
+		return this.#arr.length <= 0
+	}
 	
 	// for debugging
 	[util.inspect.custom]() {

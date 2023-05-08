@@ -3,6 +3,7 @@ import GrammarListener from "./lib/GrammarListener.js";
 import Stack from "./stack.js";
 import semanticCube from "./semantic_cube.js";
 import { ParserError } from "./error_listener.js";
+import Queue from "./queue.js";
 
 /**
  * @typedef {(string|null)[]} Quadruple
@@ -81,6 +82,11 @@ export default class Listener extends GrammarListener {
     tempVarNum
 
     /**
+     * @type {number}
+     */
+    tempLocalVarNum
+
+    /**
      * @type {{
      *  type: ("number" | "boolean" | null), 
      *  dim_1: number|null, 
@@ -130,10 +136,17 @@ export default class Listener extends GrammarListener {
     operatorStack
     
     /**
-     * @type {Stack<string>}
+     * @type {Queue<string>}
      */
     tempVarQueue
     
+    /**
+     * @type {Queue<string>}
+     */
+    localTempVarQueue
+    
+
+
     /**
      * @type {number}
      */
@@ -180,14 +193,14 @@ export default class Listener extends GrammarListener {
     inError
 
     /**
-     * @type {FunInfo|null}
+     * @type {Stack<{info: FunInfo, currParam: number}>}
      */
-    currFunCallInfo
-
+    funCallStack
+    
     /**
-     * @type {number}
+     * @type {boolean}
      */
-    currFunCallParamNum
+    lastCallWasVoid
 
     /**
      * 
@@ -207,9 +220,11 @@ export default class Listener extends GrammarListener {
         this.globalVarNum = 0
         this.localVarNum = 0
         this.tempVarNum = 0
+        this.tempLocalVarNum = 0
         this.operatorStack = new Stack()
         this.operandStack = new Stack()
-        this.tempVarQueue = new Stack()
+        this.tempVarQueue = new Queue()
+        this.localTempVarQueue = new Queue()
 
         this.constNum = 2
         this.constNumTracker = {"0": "$c_0"}
@@ -223,8 +238,8 @@ export default class Listener extends GrammarListener {
 
         this.jumpStack = new Stack()
 
-        this.currFunCallInfo = null
-        this.currFunCallParamNum = 0
+        this.funCallStack = new Stack()
+        this.lastCallWasVoid = false
     }
 
     getQuadruples() {
@@ -360,6 +375,9 @@ export default class Listener extends GrammarListener {
         this.localVarTable = {}
         this.currFunType = "void"
         this.localVarNum = 0
+
+        this.tempLocalVarNum = 0
+        this.localTempVarQueue = new Queue()
     }
     exitFunction_decl() {
         console.log("LOCAL VARS", this.localVarTable)
@@ -674,7 +692,8 @@ export default class Listener extends GrammarListener {
     }
 
     exitFun_call_stmt() {
-        if (this.currFunCallInfo.type === "void") {return}
+
+        if (this.lastCallWasVoid) {return}
 
         this.operandStack.pop()
     }
@@ -700,9 +719,7 @@ export default class Listener extends GrammarListener {
             throw new SemanticError("void functions cannot be used in expressions", ctx)
         }
 
-        this.currFunCallInfo = funInfo
-
-        this.currFunCallParamNum = 0
+        this.funCallStack.push({info: funInfo, currParam: 0})
     }
     
     exitFun_id_stmt(ctx) {
@@ -714,9 +731,7 @@ export default class Listener extends GrammarListener {
             throw new SemanticError("undeclared function", ctx)
         }
 
-        this.currFunCallInfo = funInfo
-
-        this.currFunCallParamNum = 0
+        this.funCallStack.push({info: funInfo, currParam: 0})
     }
 
     enterArg_exp(ctx) {
@@ -725,43 +740,49 @@ export default class Listener extends GrammarListener {
 
     exitArg_exp(ctx) {
         this.operatorStack.pop()
-        const currCallParams = this.currFunCallInfo.params || []
+        
+        const currCall = this.funCallStack.peek()
+        const params = currCall.info.params || []
 
-        if (this.currFunCallParamNum + 1 > currCallParams.length) {
+        if (currCall.currParam + 1 > params.length) {
             this.inError = true
             throw new SemanticError("too many arguments", ctx)
         }
         
         const argOp = this.operandStack.pop()
-        const paramType = currCallParams[this.currFunCallParamNum]
+        const paramType = params[currCall.currParam]
 
         if (argOp.type !== paramType) {
             this.inError = true
             throw new SemanticError("type mismatch", ctx)
         }
         
-        this.quadruples.push(generateQuadruple("ASS", argOp.address, null, `$a_${this.currFunCallParamNum++}`))
+        this.quadruples.push(generateQuadruple("ASS", argOp.address, null, `$a_${currCall.currParam++}`))
 
         this.releaseTemp(argOp.address)
     }
 
     exitArgs(ctx) {
-        const currCallParams = this.currFunCallInfo.params || []
+        const currCall = this.funCallStack.pop()
 
-        if (this.currFunCallParamNum < currCallParams.length) {
+        const params = currCall.info.params || []
+
+        if (currCall.currParam < params.length) {
             this.inError = true
             throw new SemanticError("not enough arguments", ctx)
         }
 
         this.quadruples.push(generateQuadruple("CALL", null, null, null))
-        this.fillGoto(this.quadruples.length - 1, this.currFunCallInfo.start)
+        this.fillGoto(this.quadruples.length - 1, currCall.info.start)
 
-        if (this.currFunCallInfo.type === "void") { return }
+        this.lastCallWasVoid = true
+        if (currCall.info.type === "void") { return }
 
+        this.lastCallWasVoid = false
         const temp = this.getTemp()
         this.quadruples.push(generateQuadruple("ASS", "$r", null, temp))
 
-        this.operandStack.push({address: temp, type: this.currAccessVarInfo.type})
+        this.operandStack.push({address: temp, type: currCall.info.type || "number"})
     }
 
     /* FUN CALLS END*/
@@ -770,15 +791,29 @@ export default class Listener extends GrammarListener {
      * @param {string} addr 
      */
     releaseTemp(addr) {
-        if (addr.charAt(1) !== "t") {return}
+        if (addr.charAt(0) !== "$") {return}
 
-        this.tempVarQueue.push(addr)
+        if (addr.charAt(1) === "t") {
+            return this.tempVarQueue.push(addr)
+        }
+
+        if (addr.charAt(1) === "l" && addr.charAt(2) === "t") {
+            return this.localTempVarQueue.push(addr)
+        }
     }
     getTemp() {
-        if (this.tempVarQueue.isEmpty()) {
-            return `$t_${this.tempVarNum++}`
+        if (this.currScope === "$global") {
+            if (this.tempVarQueue.isEmpty()) {
+                return `$t_${this.tempVarNum++}`
+            }
+            return this.tempVarQueue.pop() || "$t_"
         }
-        return this.tempVarQueue.pop() || "$t_"
+
+        if (this.localTempVarQueue.isEmpty()) {
+            return `$lt_${this.tempLocalVarNum++}`
+        }
+        
+        return this.localTempVarQueue.pop() || `$lt_`
     }
 
     /**
