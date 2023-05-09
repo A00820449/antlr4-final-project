@@ -22,6 +22,7 @@ import Queue from "./queue.js";
 *      type: ("number" | "boolean"),
 *      dim_1: number | null,
 *      dim_2: number | null,
+*      dims: number[],
 *      address: string
 * }} VarInfo
 */
@@ -90,7 +91,8 @@ export default class Listener extends GrammarListener {
      * @type {{
      *  type: ("number" | "boolean" | null), 
      *  dim_1: number|null, 
-     *  dim_2: number|null
+     *  dim_2: number|null,
+     *  dims: number[]
      * }}
      */
     currVarType
@@ -183,6 +185,11 @@ export default class Listener extends GrammarListener {
     currAccessDim2
 
     /**
+     * @type {Stack<{info: VarInfo, access_operands: OperandInfo[]>}
+     */
+    varAccessStack
+
+    /**
      * @type {Stack<number>}
      */
     jumpStack
@@ -235,7 +242,7 @@ export default class Listener extends GrammarListener {
         super()
         this.quadruples = q || []
         this.funTable = {}
-        this.currVarType = {type: null, dim_1: null, dim_2: null}
+        this.currVarType = {type: null, dim_1: null, dim_2: null, dims: []}
         this.currScope = "$global"
         this.globalVarTable = {}
         this.localVarTable = {}
@@ -259,6 +266,9 @@ export default class Listener extends GrammarListener {
         this.currAccessVarInfo = null
         this.currAccessDim1 = null
         this.currAccessDim2 = null
+        
+        this.varAccessStack = new Stack();
+        
         this.inError = false
 
         this.jumpStack = new Stack()
@@ -310,6 +320,7 @@ export default class Listener extends GrammarListener {
     enterVar_decl(ctx) {
         this.currVarType.dim_1 = null
         this.currVarType.dim_2 = null
+        this.currVarType.dims = []
     }
 
     exitVar_basic_type(ctx) {
@@ -323,6 +334,7 @@ export default class Listener extends GrammarListener {
             throw new SemanticError("vector dimension must be positive", ctx)
         }
         this.currVarType.dim_1 = num
+        this.currVarType.dims.push(num)
     }
 
     exitVar_type_dim_2_num(ctx) {
@@ -332,6 +344,7 @@ export default class Listener extends GrammarListener {
             throw new SemanticError("vector dimension must be positive", ctx)
         }
         this.currVarType.dim_2 = num
+        this.currVarType.dims.push(num)
     }
 
     exitVar_id(ctx) {
@@ -341,14 +354,14 @@ export default class Listener extends GrammarListener {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$g_${this.globalVarNum++}`}
+            this.globalVarTable[id] = {type: "boolean", dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.localVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, address: `$l_${this.localVarNum++}`}
+            this.localVarTable[id] =  {type: this.currVarType.type, dim_1: this.currVarType.dim_1 ,dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$l_${this.localVarNum++}`}
 
         }
     }
@@ -440,7 +453,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitParam_type(ctx) {
-        this.currVarType = {type: ctx.getText(), dim_1: null, dim_2: null}
+        this.currVarType = {type: ctx.getText(), dim_1: null, dim_2: null, dims: []}
     }
     exitParam_id(ctx) {
         const id = ctx.getText()
