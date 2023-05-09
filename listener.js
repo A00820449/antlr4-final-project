@@ -208,6 +208,26 @@ export default class Listener extends GrammarListener {
     breakStack
 
     /**
+     * @type {number}
+     */
+    pointerNum
+
+    /**
+     * @type {number}
+     */
+    localPointerNum
+
+    /**
+     * @type {Queue<string>}
+     */
+    pointerQueue
+
+    /**
+     * @type {Queue<string>}
+     */
+    localPointerQueue
+
+    /**
      * 
      * @param {Quadruple[]?} q
      */
@@ -247,6 +267,11 @@ export default class Listener extends GrammarListener {
         this.lastCallWasVoid = false
 
         this.breakStack = new Stack()
+
+        this.pointerNum = 0
+        this.localPointerNum = 0
+        this.pointerQueue = new Queue()
+        this.localPointerQueue = new Queue()
     }
 
     getQuadruples() {
@@ -821,9 +846,17 @@ export default class Listener extends GrammarListener {
         if (addr.charAt(1) === "t") {
             return this.tempVarQueue.push(addr)
         }
+        if (addr.charAt(1) === "$") {
+            return this.pointerQueue.push(addr)
+        }
 
-        if (addr.charAt(1) === "l" && addr.charAt(2) === "t") {
-            return this.localTempVarQueue.push(addr)
+        if (addr.charAt(1) === "l") {
+            if (addr.charAt(2) === "t") {
+                return this.localTempVarQueue.push(addr)
+            }
+            if (addr.charAt(2) === "$") {
+                return this.localPointerQueue.push(addr)
+            }
         }
     }
     getTemp() {
@@ -839,6 +872,22 @@ export default class Listener extends GrammarListener {
         }
         
         return this.localTempVarQueue.pop() || `$lt_`
+    }
+
+
+    getTempPointer() {
+        if (this.currScope === "$global") {
+            if (this.pointerQueue.isEmpty()) {
+                return `$$_${this.pointerNum++}`
+            }
+            return this.pointerQueue.pop() || "$$_"
+        }
+
+        if (this.localPointerQueue.isEmpty()) {
+            return `$l$_${this.localPointerNum++}`
+        }
+        return this.localPointerQueue.pop() || "$l$_"
+
     }
 
     /**
