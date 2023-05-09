@@ -303,7 +303,7 @@ export default class Listener extends GrammarListener {
 
     exitProgram() {
         this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
-        console.log( {FUN: this.funTable, VARS: this.globalVarTable})
+        console.log("FUN:", this.funTable, "VARS:", this.globalVarTable)
         console.log("OPERANDS", this.operandStack)
     }
 
@@ -354,7 +354,7 @@ export default class Listener extends GrammarListener {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: "boolean", dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
+            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
