@@ -2,8 +2,8 @@
 * Miguel Angel Tornero Carrillo A00820449  
 * Github: <https://github.com/A00820449/antlr4-final-project>
 
-## Avance 4: Generación de Código de Estatutos Condicionales y Cíclicos
-Ya está implementada la generación de cuadruplos para estatutos while, for, y if-else. También está ya implementada la generación de cuadruplos para la llamada de funciones. La máquina virtual ya se empezó y puede ya se puede usar. Las instrucciones para usarla estan en el archivo README. Se espera empezar con arreglos y matrices la siguiente semana.
+## Avance 5: Generación de Código de Funciones
+La generación de código de funciones ya es totalmente funcional, y la máquina virtual ya es capaz de ejecutar este código, incluyendo tanto funciones void como funciones que regresan un valor dentro de una expresión. También se implementó una pila durante la compilaciión para poder llevar un conteo de las llamadas de functiones dentro de argumentos para otras llamadas de funciones. Se empezó a implementar la lógica para arreglos y matrices (puntos neurálgicos). Se espera poder desarrollarlo más durante las siguente semana.
 
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
