@@ -2,8 +2,8 @@
 * Miguel Angel Tornero Carrillo A00820449  
 * Github: <https://github.com/A00820449/antlr4-final-project>
 
-## Avance 5: Generación de Código de Funciones
-La generación de código de funciones ya es totalmente funcional, y la máquina virtual ya es capaz de ejecutar este código, incluyendo tanto funciones void como funciones que regresan un valor dentro de una expresión. También se implementó una pila durante la compilaciión para poder llevar un conteo de las llamadas de functiones dentro de argumentos para otras llamadas de funciones. Se empezó a implementar la lógica para arreglos y matrices (puntos neurálgicos). Se espera poder desarrollarlo más durante las siguente semana.
+## Avance 6: Mapa de Memoria de Ejecución para la Máquina Virtual y Ejecución de Expresiones
+La semana pasada no se pudo trabajar en el proyecto, pero afortunadamente se cuenta con un buen avance por lo que el proyecto todavía esta a tiempo.   
 
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
