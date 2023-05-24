@@ -113,6 +113,7 @@ var_access: non_dim_access | arr_access | mat_access;
 non_dim_access: id_access ; 
 arr_access: id_access '[' dim_access_exp ']';
 mat_access: id_access '[' dim_access_exp ']' '[' dim_access_exp ']';
+
 dim_access_exp: expression;
 
 id_access: ID;
