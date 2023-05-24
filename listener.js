@@ -327,15 +327,28 @@ export default class Listener extends GrammarListener {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
+            this.globalVarTable[id] = {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum}`}
+
+            let increment = 1
+            this.currVarType.dims.forEach((v) => {
+                increment *= this.constTable[v]
+            })
+
+            this.globalVarNum += Math.trunc(increment)
         }
         else {
             if (this.localVarTable[id]) {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.localVarTable[id] =  {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$l_${this.localVarNum++}`}
+            this.localVarTable[id] =  {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$l_${this.localVarNum}`}
 
+            let increment = 1
+            this.currVarType.dims.forEach((v) => {
+                increment *= this.constTable[v]
+            })
+
+            this.localVarNum += Math.trunc(increment)
         }
     }
 
