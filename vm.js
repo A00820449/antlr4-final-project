@@ -176,6 +176,17 @@ function writeLocalMemory(addr, val) {
     if (!mem) {
         throw new Error("stack error")
     }
+
+    if (isLocalPointer(addr)) {
+        const pointed = mem[addr]
+        if (typeof pointed !== "string" || !isAddress(pointed)) {
+            throw new Error("invalid pointed address")
+        }
+        if (isLocal(pointed)) {
+            return mem[pointed] = val
+        }
+        return globalMemory[pointed] = val
+    }
     return mem[addr] = val
 }
 
@@ -190,6 +201,17 @@ function writeMemory(addr, val) {
 
     if (isLocal(addr)) {
         return writeLocalMemory(addr, val)
+    }
+
+    if (isPointer(addr)) {
+        const pointed = globalMemory[addr]
+        if (typeof pointed !== "string" || !isAddress(pointed)) {
+            throw new Error("invalid pointed address")
+        }
+        if (isLocal(pointed)) {
+            return writeLocalMemory(pointed, val)
+        }
+        return globalMemory[pointed] = val
     }
 
     return globalMemory[addr] = val
@@ -415,7 +437,25 @@ const instructions = {
         const num = parseInt(match[2])
 
         const result = `${prefix}_${num + op_2}`
-        writeMemorySafe(q[3], result)
+
+        const pointerAddr = q[3]
+
+        if (typeof pointerAddr !== "string" || !isAddress(pointerAddr) || (!isPointer(pointerAddr) && !isLocalPointer(pointerAddr))){
+            throw new Error("ADDP: target has to be a pointer")
+        }
+
+        if (isLocal(pointerAddr)) {
+            const mem = memStack.peek()
+
+            if (!mem) {
+                throw new Error("stack error")
+            }
+
+            mem[pointerAddr] = result
+        }
+        else {
+            globalMemory[pointerAddr] = result
+        }
     },
     "RANG": function(q) {
         const op = getMemorySafe(q[1])
@@ -425,6 +465,12 @@ const instructions = {
         if (op < lower || op >= upper) {
             throw new Error("index out of bounds")
         }
+    },
+    "TRUN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.trunc(op_1)
+        writeMemorySafe(q[3], result)
     }
 }
 
@@ -448,8 +494,9 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
         else {
             console.log(e)
         }
+        console.log(globalMemory)
         process.exit(1)
     }
 }
-
+console.log(globalMemory)
 process.exit(exitCode)
