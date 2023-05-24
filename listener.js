@@ -380,6 +380,36 @@ export default class Listener extends GrammarListener {
         this.varAccessStack.push({info: varInfo, access_operands: []})
     }
 
+    enterDim_access_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitDim_access_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("dimension expression has to be a number", ctx)
+        }
+    }
+
+    exitArr_access(ctx) {
+        const info = this.varAccessStack.pop()
+
+        if (!info || info.info.dims.length !== 1) {
+            this.inError = true
+            throw new SemanticError("wrong number of dimensions", ctx)
+        }
+
+        const opDim = this.operandStack.pop()
+        const temp1 = this.getTemp()
+
+        this.operandStack.push({address: temp1, type: "number"})
+        this.quadruples.push(this.getQuadruples("TRUN", opDim.address, null, temp1))
+    }
+
     /**VARS END */
 
     /** FUN STARTS */
