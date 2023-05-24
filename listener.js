@@ -2,7 +2,6 @@ import { ParserRuleContext } from "antlr4";
 import GrammarListener from "./lib/GrammarListener.js";
 import Stack from "./stack.js";
 import semanticCube from "./semantic_cube.js";
-import { ParserError } from "./error_listener.js";
 import Queue from "./queue.js";
 
 /**
@@ -946,7 +945,7 @@ export default class Listener extends GrammarListener {
 
         if (!rightOp || !leftOp || !operator) {
             this.inError = true
-            throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
+            throw new SemanticError("bad grammar", ctx)
         }
 
         const resultType = semanticCube[operator]?.[leftOp.type]?.[rightOp.type]
@@ -983,7 +982,7 @@ export default class Listener extends GrammarListener {
 
         if (!operand || !operator) {
             this.inError = true
-            throw new ParserError("malformed expression", ctx.start.line, ctx.start.column)
+            throw new SemanticError("type mismatch", ctx)
         }
 
         const resultType = semanticCube[operator]?.[operand.type]
