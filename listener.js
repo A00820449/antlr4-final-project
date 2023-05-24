@@ -929,6 +929,73 @@ export default class Listener extends GrammarListener {
 
         this.operandStack.push({address: temp, type: "number"})
         this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterRound_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitRound_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ROUN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterFloor_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitFloor_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("FLOO", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterCeiling_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitCeiling_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("CEIL", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
     }
 
     /* BUILT-IN'S END */

@@ -102,7 +102,7 @@ load_stmt: 'load' '(' STR_CTE ')' ';';
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call_exp: trunc_built_in | fun_id_exp args;
+fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | fun_id_exp args;
 fun_id_exp: ID;
 
 args: '(' (arg_exp (',' arg_exp)*)? ')';
@@ -122,6 +122,15 @@ main: 'main' ':' var_decl* block ;
 
 trunc_built_in: 'trunc' '(' trunc_exp ')';
 trunc_exp: expression;
+
+round_built_in: 'round' '(' round_exp ')';
+round_exp: expression;
+
+floor_built_in: 'floor' '(' floor_exp ')';
+floor_exp: expression;
+
+ceiling_built_in: 'ceil' '(' ceiling_exp ')';
+ceiling_exp: expression;
 
 // TOKENS
 
