@@ -111,14 +111,11 @@ arg_exp: expression;
 var_access: non_dim_access | arr_access | mat_access;
 
 non_dim_access: id_access ; 
-arr_access: id_access dim_access_1;
-mat_access: id_access dim_access_1 dim_access_2;
+arr_access: id_access '[' dim_access_exp ']';
+mat_access: id_access '[' dim_access_exp ']' '[' dim_access_exp ']';
+dim_access_exp: expression;
 
 id_access: ID;
-
-dim_access_1: '[' expression ']';
-
-dim_access_2: '[' expression ']';
 
 main: 'main' ':' var_decl* block ;
 

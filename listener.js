@@ -305,7 +305,7 @@ export default class Listener extends GrammarListener {
         const num = Math.trunc(parseFloat(ctx.getText()))
         if (num <= 0) {
             this.inError = true
-            throw new SemanticError("vector dimension must be positive", ctx)
+            throw new SemanticError("dimensions must be positive", ctx)
         }
         
         this.currVarType.dims.push(this.getConst(num))
@@ -315,7 +315,7 @@ export default class Listener extends GrammarListener {
         const num = Math.trunc(parseFloat(ctx.getText()))
         if (num <= 0) {
             this.inError = true
-            throw new SemanticError("vector dimension must be positive", ctx)
+            throw new SemanticError("dimensions must be positive", ctx)
         }
         this.currVarType.dims.push(this.getConst(num))
     }
@@ -343,7 +343,7 @@ export default class Listener extends GrammarListener {
         const varinfo = this.varAccessStack.pop()
         if (!varinfo  || varinfo.info.dims.length > 0) {
             this.inError = true
-            throw new SemanticError("missing vector dimension(s)", ctx)
+            throw new SemanticError("missing dimension(s)", ctx)
         }
 
         this.operandStack.push({address: varinfo.info.address, type: varinfo.info.type})
