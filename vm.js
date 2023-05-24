@@ -471,6 +471,24 @@ const instructions = {
 
         const result = Math.trunc(op_1)
         writeMemorySafe(q[3], result)
+    },
+    "ROUN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.round(op_1)
+        writeMemorySafe(q[3], result)
+    },
+    "FLOO": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.floor(op_1)
+        writeMemorySafe(q[3], result)
+    },
+    "CEIL": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.ceil(op_1)
+        writeMemorySafe(q[3], result)
     }
 }
 
