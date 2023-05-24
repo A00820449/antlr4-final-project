@@ -165,21 +165,6 @@ export default class Listener extends GrammarListener {
     constStrTracker
 
     /**
-     * @type {(VarInfo|null)}
-     */
-    currAccessVarInfo
-    
-    /**
-     * @type {OperandInfo|null}
-     */
-    currAccessDim1
-
-    /**
-     * @type {OperandInfo|null}
-     */
-    currAccessDim2
-
-    /**
      * @type {Stack<{info: VarInfo, access_operands: OperandInfo[]>}
      */
     varAccessStack
@@ -257,10 +242,6 @@ export default class Listener extends GrammarListener {
         this.constNumTracker = {"0": "$c_0"}
         this.constStrTracker = {"\n": "$c_n"}
         this.constTable = {"$c_f": false, "$c_t": true, "$c_n": "\n", "$c_0": 0}
-
-        this.currAccessVarInfo = null
-        this.currAccessDim1 = null
-        this.currAccessDim2 = null
         
         this.varAccessStack = new Stack();
         
@@ -358,19 +339,14 @@ export default class Listener extends GrammarListener {
         }
     }
 
-    enterVar_access() {
-        this.currAccessVarInfo = null
-        this.currAccessDim1 = null
-        this.currAccessDim2 = null
-    }
-
     exitNon_dim_access(ctx) {
-        if (this.currAccessVarInfo.dims.length > 0) {
+        const varinfo = this.varAccessStack.pop()
+        if (!varinfo  || varinfo.info.dims.length > 0) {
             this.inError = true
             throw new SemanticError("missing vector dimension(s)", ctx)
         }
 
-        this.operandStack.push({address: this.currAccessVarInfo.address, type: this.currAccessVarInfo.type})
+        this.operandStack.push({address: varinfo.info.address, type: varinfo.info.type})
 
     }
 
@@ -400,7 +376,8 @@ export default class Listener extends GrammarListener {
             this.inError = true
             throw new SemanticError(`variable not defined '${id}'`, ctx)
         }
-        this.currAccessVarInfo = {...varInfo}
+
+        this.varAccessStack.push({info: varInfo, access_operands: []})
     }
 
     /**VARS END */
