@@ -20,9 +20,7 @@ import Queue from "./queue.js";
 /**
  * @typedef {{
 *      type: ("number" | "boolean"),
-*      dim_1: number | null,
-*      dim_2: number | null,
-*      dims: number[],
+*      dims: string[],
 *      address: string
 * }} VarInfo
 */
@@ -90,9 +88,7 @@ export default class Listener extends GrammarListener {
     /**
      * @type {{
      *  type: ("number" | "boolean" | null), 
-     *  dim_1: number|null, 
-     *  dim_2: number|null,
-     *  dims: number[]
+     *  dims: string[]
      * }}
      */
     currVarType
@@ -242,7 +238,7 @@ export default class Listener extends GrammarListener {
         super()
         this.quadruples = q || []
         this.funTable = {}
-        this.currVarType = {type: null, dim_1: null, dim_2: null, dims: []}
+        this.currVarType = {type: null, dims: []}
         this.currScope = "$global"
         this.globalVarTable = {}
         this.localVarTable = {}
@@ -318,8 +314,6 @@ export default class Listener extends GrammarListener {
     /**VARS START */
 
     enterVar_decl(ctx) {
-        this.currVarType.dim_1 = null
-        this.currVarType.dim_2 = null
         this.currVarType.dims = []
     }
 
@@ -333,8 +327,8 @@ export default class Listener extends GrammarListener {
             this.inError = true
             throw new SemanticError("vector dimension must be positive", ctx)
         }
-        this.currVarType.dim_1 = num
-        this.currVarType.dims.push(num)
+        
+        this.currVarType.dims.push(this.getConst(num))
     }
 
     exitVar_type_dim_2_num(ctx) {
@@ -343,8 +337,7 @@ export default class Listener extends GrammarListener {
             this.inError = true
             throw new SemanticError("vector dimension must be positive", ctx)
         }
-        this.currVarType.dim_2 = num
-        this.currVarType.dims.push(num)
+        this.currVarType.dims.push(this.getConst(num))
     }
 
     exitVar_id(ctx) {
@@ -354,14 +347,14 @@ export default class Listener extends GrammarListener {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.globalVarTable[id] = {type: this.currVarType.type, dim_1: this.currVarType.dim_1, dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
+            this.globalVarTable[id] = {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$g_${this.globalVarNum++}`}
         }
         else {
             if (this.localVarTable[id]) {
                 this.inError = true
                 throw new SemanticError(`duplicate ID '${id}'`, ctx)
             }
-            this.localVarTable[id] =  {type: this.currVarType.type, dim_1: this.currVarType.dim_1 ,dim_2: this.currVarType.dim_2, dims: this.currVarType.dims.slice(), address: `$l_${this.localVarNum++}`}
+            this.localVarTable[id] =  {type: this.currVarType.type, dims: this.currVarType.dims.slice(), address: `$l_${this.localVarNum++}`}
 
         }
     }
@@ -373,7 +366,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitNon_dim_access(ctx) {
-        if (this.currAccessVarInfo.dim_1) {
+        if (this.currAccessVarInfo.dims.length > 0) {
             this.inError = true
             throw new SemanticError("missing vector dimension(s)", ctx)
         }
@@ -453,7 +446,7 @@ export default class Listener extends GrammarListener {
     }
 
     exitParam_type(ctx) {
-        this.currVarType = {type: ctx.getText(), dim_1: null, dim_2: null, dims: []}
+        this.currVarType = {type: ctx.getText(), dims: []}
     }
     exitParam_id(ctx) {
         const id = ctx.getText()
@@ -482,8 +475,8 @@ export default class Listener extends GrammarListener {
     /** EXPRESSIONS **/
 
     exitLiteral_num(ctx) {
-        const numStr = ctx.getText()
-        const address = this.getConst(numStr)
+        const num = parseFloat(ctx.getText())
+        const address = this.getConst(num)
         this.operandStack.push({address: address, type: "number"})
     }
     
@@ -912,10 +905,9 @@ export default class Listener extends GrammarListener {
     }
 
     /**
-     * @param {string} token 
+     * @param {number} val 
      */
-    getConst(token) {
-        const val = parseFloat(token)
+    getConst(val) {
         const existing = this.constNumTracker[val.toString()];
         if (existing) {
             return existing
