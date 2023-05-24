@@ -102,7 +102,7 @@ load_stmt: 'load' '(' STR_CTE ')' ';';
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | fun_id_exp args;
+fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | is_integer_built_in | fun_id_exp args;
 fun_id_exp: ID;
 
 args: '(' (arg_exp (',' arg_exp)*)? ')';
@@ -131,6 +131,9 @@ floor_exp: expression;
 
 ceiling_built_in: 'ceil' '(' ceiling_exp ')';
 ceiling_exp: expression;
+
+is_integer_built_in: 'isInteger' '(' is_integer_exp ')';
+is_integer_exp: expression;
 
 // TOKENS
 

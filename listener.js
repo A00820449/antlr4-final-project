@@ -998,6 +998,28 @@ export default class Listener extends GrammarListener {
         this.lastCallWasVoid = false
     }
 
+    enterIs_integer_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitIs_integer_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ISIN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "boolean"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
     /* BUILT-IN'S END */
 
     /**

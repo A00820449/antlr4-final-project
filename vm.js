@@ -489,6 +489,12 @@ const instructions = {
 
         const result = Math.ceil(op_1)
         writeMemorySafe(q[3], result)
+    },
+    "ISIN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Number.isInteger(op_1)
+        writeMemorySafe(q[3], result)
     }
 }
 
