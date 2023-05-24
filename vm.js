@@ -498,5 +498,5 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
         process.exit(1)
     }
 }
-console.log(globalMemory)
+//console.log(globalMemory)
 process.exit(exitCode)
