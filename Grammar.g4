@@ -102,7 +102,7 @@ load_stmt: 'load' '(' STR_CTE ')' ';';
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call_exp: fun_id_exp args;
+fun_call_exp: trunc_built_in | fun_id_exp args;
 fun_id_exp: ID;
 
 args: '(' (arg_exp (',' arg_exp)*)? ')';
@@ -119,6 +119,9 @@ dim_access_exp: expression;
 id_access: ID;
 
 main: 'main' ':' var_decl* block ;
+
+trunc_built_in: 'trunc' '(' trunc_exp ')';
+trunc_exp: expression;
 
 // TOKENS
 

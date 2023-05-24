@@ -465,6 +465,7 @@ export default class Listener extends GrammarListener {
         this.releaseTemp(temp2)
         this.releaseTemp(temp3)
         this.releaseTemp(opDim1.address)
+        this.releaseTemp(opDim2.address)
         this.operandStack.push({address: tempPoint1, type: info.info.type})
     }
 
@@ -906,6 +907,31 @@ export default class Listener extends GrammarListener {
     }
 
     /* FUN CALLS END*/
+
+    /* BUILT-IN'S START */
+
+    enterTrunc_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitTrunc_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("TRUN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+    }
+
+    /* BUILT-IN'S END */
 
     /**
      * @param {string} addr 
