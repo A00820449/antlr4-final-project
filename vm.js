@@ -398,11 +398,33 @@ const instructions = {
         pointer = quadruples.length
     },
     "ADDP": function(q) {
-        const op_1 = q[1]
+        const op_1 = q[1] || ""
         const op_2 = getMemorySafe(q[2])
 
-        const result = `${op_1}_${op_2}`
+        if (typeof op_2 !== "number") {
+            throw new Error("ADDP: can only add a number")
+        }
+
+        const match = op_1.match(/^(\$[a-zA-Z$]*)_([0-9]+)$/)
+        
+        if (!match) {
+            throw new Error("ADDP: invalid address")
+        }
+
+        const prefix = match[1]
+        const num = parseInt(match[2])
+
+        const result = `${prefix}_${num + op_2}`
         writeMemorySafe(q[3], result)
+    },
+    "RANG": function(q) {
+        const op = getMemorySafe(q[1])
+        const lower = getMemorySafe(q[2])
+        const upper = getMemorySafe(q[3])
+
+        if (op < lower || op >= upper) {
+            throw new Error("index out of bounds")
+        }
     }
 }
 
