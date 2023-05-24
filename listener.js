@@ -411,7 +411,7 @@ export default class Listener extends GrammarListener {
 
         const opDim = this.operandStack.pop()
 
-        if (opDim.type !== "number") {
+        if (!opDim || opDim.type !== "number") {
             this.inError = true
             throw new SemanticError("dimension expression has to be a number", ctx)
         }
@@ -421,10 +421,50 @@ export default class Listener extends GrammarListener {
 
         this.quadruples.push(generateQuadruple("TRUN", opDim.address, null, temp1))
         this.quadruples.push(generateQuadruple("RANG", temp1, "$c_0", info.info.dims[0]))
+        
         this.quadruples.push(generateQuadruple("ADDP", info.info.address, temp1, tempPoint1))
 
         this.releaseTemp(temp1)
         this.releaseTemp(opDim.address)
+        this.operandStack.push({address: tempPoint1, type: info.info.type})
+    }
+
+    exitMat_access(ctx) {
+        const info = this.varAccessStack.pop()
+
+        if (!info || info.info.dims.length !== 2) {
+            this.inError = true
+            throw new SemanticError("wrong number of dimensions", ctx)
+        }
+
+        const opDim2 = this.operandStack.pop()
+        const opDim1 = this.operandStack.pop()
+
+        if (!opDim1 || opDim1.type !== "number" || !opDim2 || opDim2.type !== "number") {
+            this.inError = true
+            throw new SemanticError("dimension expression has to be a number", ctx)
+        }
+
+        const temp1 = this.getTemp()
+        const temp2 = this.getTemp()
+        const temp3 = this.getTemp()
+        const tempPoint1 = this.getTempPointer()
+
+        this.quadruples.push(generateQuadruple("TRUN", opDim1.address, null, temp1))
+        this.quadruples.push(generateQuadruple("RANG", temp1, "$c_0", info.info.dims[0]))
+        
+        this.quadruples.push(generateQuadruple("TRUN", opDim2.address, null, temp2))
+        this.quadruples.push(generateQuadruple("RANG", temp2, "$c_0", info.info.dims[1]))
+
+        this.quadruples.push(generateQuadruple("MUL", temp1, info.info.dims[1], temp3))
+        this.quadruples.push(generateQuadruple("ADD", temp3, temp2, temp1))
+        
+        this.quadruples.push(generateQuadruple("ADDP", info.info.address, temp1, tempPoint1))
+
+        this.releaseTemp(temp1)
+        this.releaseTemp(temp2)
+        this.releaseTemp(temp3)
+        this.releaseTemp(opDim1.address)
         this.operandStack.push({address: tempPoint1, type: info.info.type})
     }
 
