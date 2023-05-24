@@ -386,13 +386,6 @@ export default class Listener extends GrammarListener {
 
     exitDim_access_exp(ctx) {
         this.operatorStack.pop()
-
-        const op = this.operandStack.pop()
-
-        if (!op || op.type !== "number") {
-            this.inError = true
-            throw new SemanticError("dimension expression has to be a number", ctx)
-        }
     }
 
     exitArr_access(ctx) {
@@ -404,10 +397,22 @@ export default class Listener extends GrammarListener {
         }
 
         const opDim = this.operandStack.pop()
-        const temp1 = this.getTemp()
 
-        this.operandStack.push({address: temp1, type: "number"})
-        this.quadruples.push(this.getQuadruples("TRUN", opDim.address, null, temp1))
+        if (opDim.type !== "number") {
+            this.inError = true
+            throw new SemanticError("dimension expression has to be a number", ctx)
+        }
+
+        const temp1 = this.getTemp()
+        const tempPoint1 = this.getTempPointer()
+
+        this.quadruples.push(generateQuadruple("TRUN", opDim.address, null, temp1))
+        this.quadruples.push(generateQuadruple("RANG", temp1, "$c_0", info.info.dims[0]))
+        this.quadruples.push(generateQuadruple("ADDP", info.info.address, temp1, tempPoint1))
+
+        this.releaseTemp(temp1)
+        this.releaseTemp(opDim.address)
+        this.operandStack.push({address: tempPoint1, type: info.info.type})
     }
 
     /**VARS END */
