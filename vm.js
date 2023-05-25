@@ -500,7 +500,7 @@ const instructions = {
         const op_1 = getMemorySafe(q[1])
         const op_2 = getMemorySafe(q[2])
 
-        const result = Math.pow(op_1 , op_2)
+        const result = Math.pow(op_1, op_2)
         writeMemorySafe(q[3], result)
     },
 }
