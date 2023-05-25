@@ -503,6 +503,57 @@ const instructions = {
         const result = Math.pow(op_1, op_2)
         writeMemorySafe(q[3], result)
     },
+    "SIN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.sin(op_1)
+        writeMemorySafe(q[3], result)
+    },
+    "COS": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.cos(op_1)
+        writeMemorySafe(q[3], result)
+    },
+    "TAN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.tan(op_1)
+        writeMemorySafe(q[3], result)
+    },
+    "ASIN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.asin(op_1)
+
+        if (isNaN(result)) {
+            throw Error("invalid asin input")
+        }
+
+        writeMemorySafe(q[3], result)
+    },
+    "ACOS": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.acos(op_1)
+
+        if (isNaN(result)) {
+            throw Error("invalid acos input")
+        }
+
+        writeMemorySafe(q[3], result)
+    },
+    "ATAN": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        const result = Math.atan(op_1)
+
+        if (isNaN(result)) {
+            throw Error("invalid atan input")
+        }
+
+        writeMemorySafe(q[3], result)
+    },
 }
 
 //console.log(input)

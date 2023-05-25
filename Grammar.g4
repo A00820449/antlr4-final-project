@@ -102,7 +102,7 @@ load_stmt: 'load' '(' STR_CTE ')' ';';
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | is_integer_built_in | pow_built_in | fun_id_exp args;
+fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | is_integer_built_in | pow_built_in | sin_built_in | cos_built_in | tan_built_in | asin_built_in | acos_built_in | atan_built_in | fun_id_exp args;
 fun_id_exp: ID;
 
 args: '(' (arg_exp (',' arg_exp)*)? ')';
