@@ -1020,6 +1020,34 @@ export default class Listener extends GrammarListener {
         this.lastCallWasVoid = false
     }
 
+    enterPow_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitPow_exp() {
+        this.operatorStack.pop()
+    }
+
+    exitPow_built_in(ctx) {
+        const op2 = this.operandStack.pop()
+        const op1 = this.operandStack.pop()
+
+        if (!op1 || op1.type !== "number" || !op2 || op2.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+
+        this.quadruples.push(generateQuadruple("POW", op1.address, op2.address, temp))
+        this.operandStack.push({address: temp, type: "number"})
+        
+        this.lastCallWasVoid = false
+
+        this.releaseTemp(op1.address)
+        this.releaseTemp(op2.address)
+    }
+
     /* BUILT-IN'S END */
 
     /**
