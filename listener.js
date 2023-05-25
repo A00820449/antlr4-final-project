@@ -1048,6 +1048,138 @@ export default class Listener extends GrammarListener {
         this.releaseTemp(op2.address)
     }
 
+    enterSin_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitSin_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("SIN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterCos_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitCos_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("COS", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterTan_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitTan_built_in(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("TAN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterAsin_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitAsin_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ASIN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterAcos_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitAcos_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ACOS", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
+    enterAtan_exp() {
+        this.operatorStack.push("")
+    }
+
+    exitAtan_exp(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("ATAN", op.address, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.releaseTemp(op.address)
+        this.lastCallWasVoid = false
+    }
+
     /* BUILT-IN'S END */
 
     /**

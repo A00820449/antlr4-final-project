@@ -138,6 +138,24 @@ is_integer_exp: expression;
 pow_built_in: 'pow' '(' pow_exp ',' pow_exp ')';
 pow_exp: expression;
 
+sin_built_in: 'sin' '(' sin_exp ')';
+sin_exp: expression;
+
+cos_built_in: 'cos' '(' cos_exp ')';
+cos_exp: expression;
+
+tan_built_in: 'tan' '(' tan_exp ')';
+tan_exp: expression;
+
+asin_built_in: 'asin' '(' asin_exp ')';
+asin_exp: expression;
+
+acos_built_in: 'acos' '(' acos_exp ')';
+acos_exp: expression;
+
+atan_built_in: 'asin' '(' atan_exp ')';
+atan_exp: expression;
+
 // TOKENS
 
 ID: [A-Za-z_][A-Za-z0-9_]*;
