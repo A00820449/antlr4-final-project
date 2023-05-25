@@ -241,7 +241,7 @@ export default class Listener extends GrammarListener {
         this.constNum = 1
         this.constNumTracker = {"0": "$c_0"}
         this.constStrTracker = {"\n": "$c_n"}
-        this.constTable = {"$c_f": false, "$c_t": true, "$c_n": "\n", "$c_0": 0}
+        this.constTable = {"$c_f": false, "$c_t": true, "$c_n": "\n", "$c_0": 0, "$c_pi": Math.PI}
         
         this.varAccessStack = new Stack();
         
@@ -545,6 +545,10 @@ export default class Listener extends GrammarListener {
         this.operandStack.push({address: address, type: "number"})
     }
     
+    exitLiteral_pi() {
+        this.operandStack.push({address: "$c_pi", type: "number"})
+    }
+
     exitLiteral_bool(ctx) {
         if (ctx.getText() === "true") {
             return this.operandStack.push({address: "$c_t", type: "boolean"})

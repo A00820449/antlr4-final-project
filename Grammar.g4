@@ -89,9 +89,10 @@ negation: paren_exp | atom;
 paren_exp: '(' expression ')';
 atom: var_access | fun_call_exp | literal;
 
-literal: literal_num | literal_bool;
+literal: literal_num | literal_bool | literal_pi;
 literal_num: NUM_CTE;
 literal_bool: 'true' | 'false';
+literal_pi: 'PI';
 
 print_stmt: 'print' '(' (print_arg (',' print_arg)*)? ')' ';';
 print_arg: print_exp | print_str;
