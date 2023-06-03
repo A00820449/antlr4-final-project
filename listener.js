@@ -1224,6 +1224,104 @@ export default class Listener extends GrammarListener {
         this.quadruples.push(generateQuadruple("SAVE", addr, null, null))
     }
 
+    enterSetX() {
+        this.operatorStack.push("")
+    }
+
+    exitSetX(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("SETX", op.address, null, null))
+        this.releaseTemp(op.address)
+    }
+
+    enterSetY() {
+        this.operatorStack.push("")
+    }
+
+    exitSetY(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("SETY", op.address, null, null))
+        this.releaseTemp(op.address)
+    }
+
+    enterSetW() {
+        this.operatorStack.push("")
+    }
+
+    exitSetW(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("SETW", op.address, null, null))
+        this.releaseTemp(op.address)
+    }
+
+    enterSetH() {
+        this.operatorStack.push("")
+    }
+
+    exitSetH(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("SETH", op.address, null, null))
+        this.releaseTemp(op.address)
+    }
+
+    enterSetDeg() {
+        this.operatorStack.push("")
+    }
+
+    exitSetDeg(ctx) {
+        this.operatorStack.pop()
+
+        const op = this.operandStack.pop()
+
+        if (!op || op.type !== "number") {
+            this.inError = true
+            throw new SemanticError("type mismatch", ctx)
+        }
+
+        this.quadruples.push(generateQuadruple("SETD", op.address, null, null))
+        this.releaseTemp(op.address)
+    }
+
+    exitCrop_stmt() {
+        this.quadruples.push(generateQuadruple("CROP", null, null, null))
+    }
+
+    exitResize_stmt() {
+        this.quadruples.push(generateQuadruple("RESZ", null, null, null))
+    }
+
     /* IMAGE STATEMENTS END */
 
     /**

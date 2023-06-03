@@ -40,7 +40,7 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | save_stmt | read_stmt | for_stmt | break_stmt;
+statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | save_stmt | read_stmt | for_stmt | break_stmt | crop_stmt | resize_stmt;
 
 assignment_stmt: assignment ';';
 assignment: var_access '=' expression;
@@ -102,7 +102,7 @@ print_str: STR_CTE;
 load_stmt: 'load' '(' load_str ')' ';';
 load_str: STR_CTE;
 
-save_stmt: 'save' '(' save_str ')';
+save_stmt: 'save' '(' save_str ')' ';';
 save_str: STR_CTE;
 
 read_stmt: 'read' '(' var_access ')' ';' ;
@@ -166,6 +166,16 @@ rand_built_in: 'rand' '(' ')';
 height_built_in: 'getHeight' '(' ')';
 
 width_built_in: 'getWidth' '(' ')';
+
+setX: expression;
+setY: expression;
+setW: expression;
+setH: expression;
+setDeg: expression;
+
+crop_stmt: 'crop' '(' setX ',' setY ',' setW ',' setH ')' ';';
+
+resize_stmt: 'resize' '(' setW ',' setH ')' ';';
 
 // TOKENS
 

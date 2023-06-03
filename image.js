@@ -1,8 +1,8 @@
-import Jimp from "jimp";
-const { read } = Jimp
+import sharp from "sharp";
+import { readFile } from "node:fs/promises"
 
 /**
- * @typedef {Awaited<ReturnType<typeof read>>} Image
+ * @typedef {Awaited<ReturnType<typeof sharp>>} Image
  */
 
 /**
@@ -45,7 +45,8 @@ export class NoImageError extends Error {
  * @param {string} name 
  */
 export async function loadImage(name) {
-    return image = await read(name)
+    const buff = await readFile(name)
+    return image = sharp(buff)
 }
 
 /**
@@ -55,8 +56,8 @@ export async function saveImage(name) {
     if (image === null) {
         throw new NoImageError()
     }
-    
-    return image.write(name)
+
+    return await image.toFile(name)
 }
 
 /**
@@ -94,58 +95,72 @@ export function setDeg(newDeg) {
     return deg = newDeg
 }
 
-export function getWidth() {
+export async function getWidth() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.getWidth()
+    const meta = await image.metadata()
+
+    return meta.width || 0
 }
 
-export function getHeight() {
+export async function getHeight() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.getHeight()
+    const meta = await image.metadata()
+
+    return meta.height || 0
 }
 
-export function resize() {
+export async function resize() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.resize(w, h)
+    const buff = await image.resize({width: w, height: h}).toBuffer()
+
+    return image = sharp(buff)
 }
 
-export function crop() {
+export async function crop() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.crop(x, y, w, h)
+    const buff = await image.extract({left: x, top: y, width: w, height: h}).toBuffer()
+
+    return image = sharp(buff)
 }
 
-export function rotate() {
+export async function rotate() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.rotate(deg)
+    const buff = await image.rotate(deg).toBuffer()
+
+    return image = sharp(buff)
 }
 
-export function flipVertiaclly() {
+export async function flipVertiaclly() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.flip(false, true)
+    const buff = await image.flip().toBuffer()
+
+    return image = sharp(buff)
 }
 
-export function flipHorizontally() {
+export async function flipHorizontally() {
     if (image === null) {
         throw new NoImageError()
     }
 
-    return image.flip(true, false)
+    const buff = await image.flop().toBuffer()
+
+    return image = sharp(buff)
 }

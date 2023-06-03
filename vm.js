@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { inputSchema } from "./schema.js"
 import Stack from "./stack.js"
 import { getInputFuntion } from "./input.js"
-import { getHeight, getWidth, loadImage, saveImage } from "./image.js"
+import { crop, getHeight, getWidth, loadImage, resize, saveImage, setDeg, setH, setW, setX, setY } from "./image.js"
 
 const inputFilename = process.argv[2] || 'index.obj'
 
@@ -578,16 +578,47 @@ const instructions = {
 
         await saveImage(name)
     },
-    "WIDT": function(q) {
-        const result = getWidth()
+    "WIDT": async function(q) {
+        const result = await getWidth()
 
         writeMemorySafe(q[3], result)
     },
-    "HEIG": function(q) {
-        const result = getHeight()
+    "HEIG": async function(q) {
+        const result = await getHeight()
 
         writeMemorySafe(q[3], result)
-    }
+    },
+    "SETX": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        setX(op_1)
+    },
+    "SETY": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        setY(op_1)
+    },
+    "SETW": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        setW(op_1)
+    },
+    "SETH": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        setH(op_1)
+    },
+    "SETD": function(q) {
+        const op_1 = getMemorySafe(q[1])
+
+        setDeg(op_1)
+    },
+    "CROP": async function() {
+        await crop()
+    },
+    "RESZ": async function(q) {
+        await resize()
+    },
 }
 
 //console.log(input)

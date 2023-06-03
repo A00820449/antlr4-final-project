@@ -114,3 +114,6 @@ lib
 
 *.txt
 !input.txt
+
+*.png
+!test.png
