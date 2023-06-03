@@ -1184,7 +1184,47 @@ export default class Listener extends GrammarListener {
         this.lastCallWasVoid = false
     }
 
+    exitRand_built_in(ctx) {
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("RAND", null, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.lastCallWasVoid = false
+    }
+
+    exitHeight_built_in(ctx) {
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("HEIG", null, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.lastCallWasVoid = false
+    }
+
+    exitWidth_built_in(ctx) {
+        const temp = this.getTemp()
+        this.quadruples.push(generateQuadruple("WIDT", null, null, temp))
+
+        this.operandStack.push({address: temp, type: "number"})
+        this.lastCallWasVoid = false
+    }
+
     /* BUILT-IN'S END */
+
+    /* IMAGE STATEMENTS START */
+
+    exitLoad_str(ctx) {
+        const addr = this.getConstStr(ctx.getText())
+
+        this.quadruples.push(generateQuadruple("LOAD", addr, null, null))
+    }
+
+    exitSave_str(ctx) {
+        const addr = this.getConstStr(ctx.getText())
+
+        this.quadruples.push(generateQuadruple("SAVE", addr, null, null))
+    }
+
+    /* IMAGE STATEMENTS END */
 
     /**
      * @param {string} addr 

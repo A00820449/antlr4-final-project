@@ -1,4 +1,5 @@
-import { read } from "jimp";
+import Jimp from "jimp";
+const { read } = Jimp
 
 /**
  * @typedef {Awaited<ReturnType<typeof read>>} Image
@@ -75,21 +76,21 @@ export function setY(newY) {
 /**
  * @param {number} newW 
  */
-export function setX(newW) {
+export function setW(newW) {
     return w = newW
 }
 
 /**
  * @param {number} newH 
  */
-export function setY(newH) {
+export function setH(newH) {
     return h = newH
 }
 
 /**
  * @param {number} newDeg
  */
-export function setY(newDeg) {
+export function setDeg(newDeg) {
     return deg = newDeg
 }
 

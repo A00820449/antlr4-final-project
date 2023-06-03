@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs"
 import { inputSchema } from "./schema.js"
 import Stack from "./stack.js"
 import { getInputFuntion } from "./input.js"
+import { getHeight, getWidth, loadImage, saveImage } from "./image.js"
 
 const inputFilename = process.argv[2] || 'index.obj'
 
@@ -554,6 +555,39 @@ const instructions = {
 
         writeMemorySafe(q[3], result)
     },
+    "RAND": function(q) {
+        const result = Math.random()
+
+        writeMemorySafe(q[3], result)
+    },
+    "LOAD": async function(q) {
+        const name = getMemorySafe(q[1])
+
+        if (typeof name !== "string") {
+            throw new Error("invalid file name")
+        }
+
+        await loadImage(name)
+    },
+    "SAVE": async function(q) {
+        const name = getMemorySafe(q[1])
+
+        if (typeof name !== "string") {
+            throw new Error("invalid file name")
+        }
+
+        await saveImage(name)
+    },
+    "WIDT": function(q) {
+        const result = getWidth()
+
+        writeMemorySafe(q[3], result)
+    },
+    "HEIG": function(q) {
+        const result = getHeight()
+
+        writeMemorySafe(q[3], result)
+    }
 }
 
 //console.log(input)

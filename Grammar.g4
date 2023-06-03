@@ -40,7 +40,7 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | read_stmt | for_stmt | break_stmt;
+statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | save_stmt | read_stmt | for_stmt | break_stmt;
 
 assignment_stmt: assignment ';';
 assignment: var_access '=' expression;
@@ -99,11 +99,15 @@ print_arg: print_exp | print_str;
 print_exp: expression;
 print_str: STR_CTE;
 
-load_stmt: 'load' '(' STR_CTE ')' ';';
+load_stmt: 'load' '(' load_str ')' ';';
+load_str: STR_CTE;
+
+save_stmt: 'save' '(' save_str ')';
+save_str: STR_CTE;
 
 read_stmt: 'read' '(' var_access ')' ';' ;
 
-fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | is_integer_built_in | pow_built_in | sin_built_in | cos_built_in | tan_built_in | asin_built_in | acos_built_in | atan_built_in | fun_id_exp args;
+fun_call_exp: trunc_built_in | round_built_in | floor_built_in | ceiling_built_in | is_integer_built_in | pow_built_in | sin_built_in | cos_built_in | tan_built_in | asin_built_in | acos_built_in | atan_built_in | rand_built_in | height_built_in | width_built_in | fun_id_exp args;
 fun_id_exp: ID;
 
 args: '(' (arg_exp (',' arg_exp)*)? ')';
@@ -156,6 +160,12 @@ acos_exp: expression;
 
 atan_built_in: 'asin' '(' atan_exp ')';
 atan_exp: expression;
+
+rand_built_in: 'rand' '(' ')';
+
+height_built_in: 'getHeight' '(' ')';
+
+width_built_in: 'getWidth' '(' ')';
 
 // TOKENS
 
