@@ -8,7 +8,7 @@ Se implementaros funcionalidades básicas particulares del lenguaje. Esto icluye
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
 ```bash
-pip install antlr4-tools
+pip install antlr4-tools # other installation methods exist
 ```
 After cloning the repositry, install the NPM dependencies and build the grammar files using these commands:
 ```bash
