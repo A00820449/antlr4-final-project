@@ -78,7 +78,7 @@ atom: var_access | fun_call | literal;
 
 literal: NUM_CTE | 'false' | 'true' | 'PI';
 
-fun_call: round_fun_call | trunc_fun_call | floor_fun_call | ceil_fun_call | is_integer_fun_call | pow_fun_call | sin_fun_call | cos_fun_call | tan_fun_call | asin_fun_call | acos_fun_call | atan_fun_call | height_fun_call | width_fun_call | custom_fun_call;
+fun_call: round_fun_call | trunc_fun_call | floor_fun_call | ceil_fun_call | is_integer_fun_call | pow_fun_call | sin_fun_call | cos_fun_call | tan_fun_call | asin_fun_call | acos_fun_call | atan_fun_call | height_fun_call | width_fun_call | rand_fun_call | custom_fun_call;
 
 round_fun_call: 'round' '(' expression ')';
 
@@ -104,9 +104,11 @@ acos_fun_call: 'acos' '(' expression ')';
 
 atan_fun_call: 'atan' '(' expression ')';
 
-height_fun_call: 'getHeight' '('')' ';';
+height_fun_call: 'getHeight' '('')';
 
-width_fun_call: 'getWidth' '('')' ';';
+width_fun_call: 'getWidth' '('')';
+
+rand_fun_call: 'rand' '(' ')';
 
 custom_fun_call: ID '(' (expression (',' expression)*)? ')' ;
 
