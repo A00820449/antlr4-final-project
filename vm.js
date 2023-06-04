@@ -649,7 +649,8 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
         else {
             console.error(e)
         }
-        process.exit(1)
+        exitCode = 1
+        pointer = quadruples.length
     }
 }
 process.exit(exitCode)
