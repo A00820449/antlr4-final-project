@@ -3,7 +3,7 @@
 * Github: <https://github.com/A00820449/antlr4-final-project>
 
 ## Avance 8: Código y Ejecución de Aplicación particular
-Se implementaros funcionalidades básicas particulares del lenguaje. Esto icluye las funciones `getWidth()` y `getHeight()` para obtener la altura y anchura respectivamente. También se implementaron estatutos para cargar la imagen a memoria (`load()`), guardarla a disco (`save()`), recortala (`crop()`), cambiar tamaño (`resize()`), rotarla (`rotate()`), y voltearla (`flipHorizontally()` y `flipVertically()`). También se empezó a trabajar en la documentación.  
+Se implementaros funcionalidades básicas particulares del lenguaje. Esto icluye las funciones `getWidth()` y `getHeight()` para obtener la altura y anchura respectivamente. También se implementaron estatutos para cargar la imagen a memoria (`load()`), guardarla a disco (`save()`), recortala (`crop()`), cambiar tamaño (`resize()`), rotarla (`rotate()`), y voltearla (`flipHorizontally()` y `flipVertically()`). También se empezó a trabajar en la documentación.   
 
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
