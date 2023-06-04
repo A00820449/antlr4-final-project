@@ -22,7 +22,7 @@ function boolean not(boolean b):
 main: {
     # this is a comment
     print("loading image...\n");
-    load("input.png");
+    load("test.png");
     w = getWidth();
     h = getHeight();
 
@@ -30,11 +30,13 @@ main: {
 
     if (w != h) {
         print("cropping image...");
-        crop(0,0,min,min);
+        crop(0,0,m,m);
     }
     else {
         print("image is already square");
     }
+
+    save("output.png");
 
     # printing all even numbers from 1 to 100
     i = 1;

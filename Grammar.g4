@@ -40,7 +40,7 @@ local_vars: var_decl*;
 
 block: '{' statement* '}' ;
 
-statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | save_stmt | read_stmt | for_stmt | break_stmt | crop_stmt | resize_stmt;
+statement: assignment_stmt | fun_call_stmt | if_else_stmt | return_stmt | while_stmt | print_stmt | load_stmt | save_stmt | read_stmt | for_stmt | break_stmt | crop_stmt | resize_stmt | rotate_stmt | flip_h_stmt | flip_v_stmt;
 
 assignment_stmt: assignment ';';
 assignment: var_access '=' expression;
@@ -176,6 +176,12 @@ setDeg: expression;
 crop_stmt: 'crop' '(' setX ',' setY ',' setW ',' setH ')' ';';
 
 resize_stmt: 'resize' '(' setW ',' setH ')' ';';
+
+rotate_stmt: 'rotate' '(' setDeg ')' ';';
+
+flip_v_stmt: 'flipVertically' '(' ')' ';';
+
+flip_h_stmt: 'flipHorizontally' '(' ')' ';';
 
 // TOKENS
 

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { inputSchema } from "./schema.js"
 import Stack from "./stack.js"
 import { getInputFuntion } from "./input.js"
-import { crop, getHeight, getWidth, loadImage, resize, saveImage, setDeg, setH, setW, setX, setY } from "./image.js"
+import { crop, flipHorizontally, flipVertiaclly, getHeight, getWidth, loadImage, resize, rotate, saveImage, setDeg, setH, setW, setX, setY } from "./image.js"
 
 const inputFilename = process.argv[2] || 'index.obj'
 
@@ -616,8 +616,17 @@ const instructions = {
     "CROP": async function() {
         await crop()
     },
-    "RESZ": async function(q) {
+    "RESZ": async function() {
         await resize()
+    },
+    "ROTA": async function() {
+        await rotate()
+    },
+    "FLIV": async function(q) {
+        await flipVertiaclly()
+    },
+    "FLIH": async function(q) {
+        await flipHorizontally()
     },
 }
 
@@ -626,7 +635,6 @@ const quadruples = fileInput.quadruples
 
 for (pointer = 0; pointer < quadruples.length; pointer++) {
     const q = quadruples[pointer]
-    //console.log(quadruples[pointer][0])
     try {
         const instruction = instructions[q[0]||"."]
         if (!instruction) {
@@ -636,14 +644,12 @@ for (pointer = 0; pointer < quadruples.length; pointer++) {
     }
     catch(e){
         if (e instanceof Error) {
-            console.log(e.message)
+            console.error(e.message)
         }
         else {
-            console.log(e)
+            console.error(e)
         }
-        console.log(globalMemory)
         process.exit(1)
     }
 }
-//console.log(globalMemory)
 process.exit(exitCode)

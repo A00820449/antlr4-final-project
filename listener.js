@@ -1322,6 +1322,18 @@ export default class Listener extends GrammarListener {
         this.quadruples.push(generateQuadruple("RESZ", null, null, null))
     }
 
+    exitRotate_stmt() {
+        this.quadruples.push(generateQuadruple("ROTA", null, null, null))
+    }
+
+    exitFlip_h_stmt() {
+        this.quadruples.push(generateQuadruple("FLIH", null, null, null))
+    }
+
+    exitFlip_v_stmt() {
+        this.quadruples.push(generateQuadruple("FLIV", null, null, null))
+    }
+
     /* IMAGE STATEMENTS END */
 
     /**

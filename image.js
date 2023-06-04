@@ -37,7 +37,7 @@ let deg = 0
 
 export class NoImageError extends Error {
     constructor() {
-        super("image not loaded")
+        super("an image has not been loaded")
     }
 }
 
