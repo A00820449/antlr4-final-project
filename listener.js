@@ -1394,7 +1394,8 @@ export default class Listener extends GrammarListener {
      * @param {number} target 
      */
     fillGoto(index, target) {
-        this.quadruples[index][3] = `${target}`
+        const addr = this.getConst(target)
+        this.quadruples[index][3] = addr
     }
 
     /**

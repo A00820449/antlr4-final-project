@@ -622,10 +622,10 @@ const instructions = {
     "ROTA": async function() {
         await rotate()
     },
-    "FLIV": async function(q) {
+    "FLIV": async function() {
         await flipVertiaclly()
     },
-    "FLIH": async function(q) {
+    "FLIH": async function() {
         await flipHorizontally()
     },
 }
