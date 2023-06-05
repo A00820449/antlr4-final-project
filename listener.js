@@ -279,8 +279,6 @@ export default class Listener extends GrammarListener {
 
     exitProgram() {
         this.quadruples.push(generateQuadruple("END", null, null, "$c_0"))
-        console.log("FUN:", this.funTable, "VARS:", this.globalVarTable)
-        console.log("OPERANDS", this.operandStack)
     }
 
     enterMain() {
@@ -483,7 +481,6 @@ export default class Listener extends GrammarListener {
         this.localTempVarQueue = new Queue()
     }
     exitFunction_decl() {
-        console.log("LOCAL VARS", this.localVarTable)
         let returnVal = null
         if (this.currFunType === "boolean") {
             returnVal = "$c_f"
@@ -534,7 +531,7 @@ export default class Listener extends GrammarListener {
     /** FUN ENDS */
 
     exitEnd(ctx) {
-        console.log("DONE")
+        //console.log("DONE")
     }
 
     /** EXPRESSIONS **/
