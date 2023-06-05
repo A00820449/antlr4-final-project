@@ -3,14 +3,14 @@
 * Github: <https://github.com/A00820449/antlr4-final-project>
 
 ## Image Manipulation Language (IML)
-IML seeks to allow users to easily edit images using a simple, C-like syntax. The image operation that are currently supported are croppimg, resizing, flipping vertically, flipping horizontally, and rotating.
+IML seeks to allow users to easily edit images using a simple, C-like syntax. The image operations that are currently supported are cropping, resizing, flipping vertically, flipping horizontally, and rotating.
 
 ## How To Use
 Make sure you have the latest version of [NodeJS](https://nodejs.org/), [NPM](https://www.npmjs.com/) (included with NodeJS), and [ANTLRv4](https://www.antlr.org/) installed. You can install ANTLRv4 via [PyPI](https://pypi.org/):
 ```bash
 pip install antlr4-tools # other installation methods exist
 ```
-After cloning the repositry, install the NPM dependencies and build the grammar files using these commands:
+After cloning the repository, install the NPM dependencies and build the grammar files using these commands:
 ```bash
 npm install # installs NPM dependencies
 npm run build # builds grammar files using ANTLR
@@ -64,7 +64,7 @@ function <type> functionName([parameters]):
     [statements]
 }
 ```
-A function can be of type `number`, `boolean`, or `void`. Parametes are declared in a comma separated list, in which you declare the type followrd by the name of the Parametes. A local variable follows the same syntax as shown on the previous section. Here's an example of a function with the name `foo` that has a boolan parameter with name `a`, a number parameter of name `b`, has a local boolean variable with name `f`, and returns a boolean value:
+A function can be of type `number`, `boolean`, or `void`. Parameters are declared in a comma separated list, in which you declare the type followed by the name of the Parameters. A local variable follows the same syntax as shown in the previous section. Here's an example of a function with the name `foo` that has a boolean parameter with name `a`, a number parameter of name `b`, has a local boolean variable with name `f`, and returns a boolean value:
 ```
 function boolean foo(boolean a, number b):
 var boolean f;
@@ -98,9 +98,9 @@ For image manipulation, we provide the following functions:
 * `crop(x, y, w, h)` Which crops the image starting from the coordinates `x` and `y` to a width `w` and a height `h`
 * `rotate(deg)` Which rotates the image a `deg` amount of degrees
 * `flipHorizontally()` Which flips the image horizontally
-* `flipVertically()` Which flips the image vertially
+* `flipVertically()` Which flips the image vertically
 * `getWidth()` Which returns the current width of the loaded image
-* `getHeight()` Which returns the current heigth of the loaded image
+* `getHeight()` Which returns the current height of the loaded image
 * `save(fileName)` Which saves the modified image to disk.
 ## Example program
 Putting all these things together, here's an example of a simple program:
