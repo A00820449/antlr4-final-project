@@ -73,18 +73,19 @@ var boolean f;
 }
 ```
 ## Statements
-As previously said, IML has a very C-like syntax, so a lot of the statements will result familiar to experienced programmers. These statments include stuff like if-else statements, while-loops, for-loops, function calls, assignments, among others.
+As previously said, IML has a very C-like syntax, so a lot of the statements will result familiar to experienced programmers. These statments include stuff like if-else statements, while-loops, for-loops, function calls, assignments, print statments, among others.
 Here's an example of what an if statement would look like:
 ```
 {
     if (foo < barr) {
-        print("Hello!");
+        print("Hello!\n");
     }
     else {
-        print("Howdy!");
+        print("Howdy!\n");
     }
 }
-```
+```   
+Note: *THE PRINT STATEMENT DOES NOT PRINT A NEWLINE CHARACTER BY DEFAULT AND MUST BE EXPLICITLY TYPED USING THE `\n` ESCAPE SEQUENCE.*
 This language comes with a lot of built-in functions to aid the programmer. Some of them include:
 * `round(number)` Which rounds a decimal value to the nearest integer
 * `trunc(number)` Which truncates a decimal value.
@@ -142,11 +143,11 @@ main:
 
     # squaring image
     if (w != h) {
-        print("cropping image...");
+        print("cropping image...\n");
         crop(0,0,m,m);
     }
     else {
-        print("image is already square");
+        print("image is already square\n");
     }
 
     save("output.png");
@@ -156,7 +157,7 @@ main:
     b = false;
     while (i <= 100) {
         if (b) {
-            print("even: ", i);
+            print("even: ", i, "\n");
         }
         b = not(b);
         i = i + 1;
