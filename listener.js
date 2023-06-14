@@ -644,8 +644,8 @@ export default class Listener extends GrammarListener {
     }
 
     exitPrint_stmt() {
-        const q = generateQuadruple("PRNT", "$c_n")
-        this.quadruples.push(q)
+        //const q = generateQuadruple("PRNT", "$c_n")
+        //this.quadruples.push(q)
     }
 
     exitRead_stmt(ctx) {
@@ -654,6 +654,9 @@ export default class Listener extends GrammarListener {
             this.inError = true
             throw new SemanticError("only numeric variables can be read", ctx)
         }
+
+        this.quadruples.push(generateQuadruple("PRNT", "$c_n"))
+
         const q = generateQuadruple("READ", var_.address, null, null)
         this.quadruples.push(q)
         this.releaseTemp(var_.address)
