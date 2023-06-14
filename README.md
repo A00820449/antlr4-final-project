@@ -73,7 +73,7 @@ var boolean f;
 }
 ```
 ## Statements
-As previously said, IML has a very C-like syntax, so a lot of the statements will result familiar to experienced programmers.  
+As previously said, IML has a very C-like syntax, so a lot of the statements will result familiar to experienced programmers. These statments include stuff like if-else statements, while-loops, for-loops, function calls, assignments, among others.
 Here's an example of what an if statement would look like:
 ```
 {
@@ -90,7 +90,8 @@ This language comes with a lot of built-in functions to aid the programmer. Some
 * `trunc(number)` Which truncates a decimal value.
 * `floor(number)` Which rounds a decimal value to the lowest integer
 * `ceil(number)` Which rounds a decimal value to the highest integer
-* `isInteger(number)` Which returns true if the number given is an integer.  
+* `isInteger(number)` Which returns true if the number given is an integer.
+* `rand()` Which returns a random number between 0 and 1.    
 <!-- end of the list -->
 For image manipulation, we provide the following functions:
 * `load(fileName)` which loads a file into memory
@@ -101,13 +102,14 @@ For image manipulation, we provide the following functions:
 * `flipVertically()` Which flips the image vertically
 * `getWidth()` Which returns the current width of the loaded image
 * `getHeight()` Which returns the current height of the loaded image
-* `save(fileName)` Which saves the modified image to disk.
+* `save(fileName)` Which saves the modified image to disk. 
 ## Example program
 Putting all these things together, here's an example of a simple program:
 ```
 program square:
 var number h, w, m, i;
 var boolean b;
+
 function number min(number a, number b):
 var number output;
 {
@@ -119,6 +121,7 @@ var number output;
     }
     return output;
 }
+
 function boolean not(boolean b):
 {
     if (b) {
@@ -126,7 +129,9 @@ function boolean not(boolean b):
     }
     return true;
 }
-main: {
+
+main:
+{
     # this is a comment
     print("loading image...\n");
     load("test.png");
@@ -157,7 +162,9 @@ main: {
         i = i + 1;
     }
 }
-```
+```   
+## Futher reading
+For more information, as well as technical specifications for this language, a pdf document containing the technical documentation for this language has been included in the repository, under the name `DocumentaciónFinal-A00820449.pdf` (currently only available in Spanish).  
 ## Demo Video
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=uOECKFEKpi4" target="_blank"><img src="http://img.youtube.com/vi/uOECKFEKpi4/0.jpg" alt="Thumbnail for Demo Video on YouTube" width="240" height="180" border="5" /></a>  
 Link: <https://www.youtube.com/watch?v=uOECKFEKpi4>
